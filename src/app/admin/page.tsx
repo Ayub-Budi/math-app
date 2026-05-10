@@ -12,6 +12,15 @@ export default function SuperAdminPage() {
   const [activeTab, setActiveTab] = useState<'users' | 'content'>('users');
   const [error, setError] = useState('');
   
+  // Custom Notification System
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{message: string, onConfirm: () => void} | null>(null);
+
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+  
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   
@@ -62,7 +71,6 @@ export default function SuperAdminPage() {
     e.preventDefault();
     if (!editingUser) return;
     
-    // Pastikan passcode ada (ambil dari state atau session storage)
     const currentPasscode = passcode || sessionStorage.getItem('admin_passcode') || "";
     
     setSaveLoading(true);
@@ -75,35 +83,40 @@ export default function SuperAdminPage() {
       const data = await res.json();
       if (res.ok) {
         setEditingUser(null);
-        alert("✅ Data User Berhasil Diperbarui!");
+        showNotification("Data User Berhasil Diperbarui!", 'success');
         fetchAdminData(currentPasscode);
       } else {
-        alert("❌ Gagal: " + (data.error || "Terjadi kesalahan"));
+        showNotification(data.error || "Gagal memperbarui user", 'error');
       }
     } catch (err) {
-      alert("❌ Error: Gagal menghubungi server");
+      showNotification("Gagal menghubungi server", 'error');
     } finally {
       setSaveLoading(false);
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    const currentPasscode = passcode || sessionStorage.getItem('admin_passcode') || "";
-    if (!confirm("⚠️ Hapus pengguna ini secara permanen? Seluruh progres belajar dan game akan hilang!")) return;
-    try {
-      const res = await fetch(`/api/admin/users?passcode=${currentPasscode}&userId=${userId}`, {
-        method: 'DELETE'
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert("✅ User Berhasil Dihapus!");
-        fetchAdminData(currentPasscode);
-      } else {
-        alert("❌ Gagal Hapus: " + (data.error || "Terjadi kesalahan"));
+  const handleDeleteUser = (userId: string) => {
+    setConfirmDialog({
+      message: "Apakah Anda yakin ingin menghapus pengguna ini secara permanen? Seluruh progres belajar dan game akan hilang!",
+      onConfirm: async () => {
+        const currentPasscode = passcode || sessionStorage.getItem('admin_passcode') || "";
+        try {
+          const res = await fetch(`/api/admin/users?passcode=${currentPasscode}&userId=${userId}`, {
+            method: 'DELETE'
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showNotification("User Berhasil Dihapus!", 'success');
+            fetchAdminData(currentPasscode);
+          } else {
+            showNotification(data.error || "Gagal menghapus user", 'error');
+          }
+        } catch (err) {
+          showNotification("Gagal menghubungi server", 'error');
+        }
+        setConfirmDialog(null);
       }
-    } catch (err) {
-      alert("❌ Error: Gagal menghubungi server");
-    }
+    });
   };
 
   const fetchContentStatus = async (code: string) => {
@@ -420,45 +433,90 @@ export default function SuperAdminPage() {
         )}
       </main>
 
-      {/* User Editor Modal */}
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }} className="fixed bottom-10 right-10 z-[100] flex items-center gap-4 p-5 rounded-[2rem] border backdrop-blur-2xl shadow-2xl min-w-[300px]" style={{ backgroundColor: notification.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', borderColor: notification.type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner ${notification.type === 'success' ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-red-500/20 border-red-500/30'}`}>
+              {notification.type === 'success' ? <CheckCircle2 className="w-6 h-6 text-emerald-400" /> : <X className="w-6 h-6 text-red-400" />}
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-0.5">{notification.type === 'success' ? 'Success' : 'Attention'}</p>
+              <p className="text-sm font-bold text-white">{notification.message}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Premium Confirm Dialog */}
+      <AnimatePresence>
+        {confirmDialog && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmDialog(null)} className="absolute inset-0 bg-slate-950/90 backdrop-blur-md" />
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="bg-slate-900 border border-slate-800 p-10 rounded-[3rem] w-full max-w-md relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center">
+              <div className="w-20 h-20 bg-amber-500/10 rounded-[2rem] mx-auto mb-6 flex items-center justify-center border border-amber-500/20">
+                 <Trash2 className="w-10 h-10 text-amber-400" />
+              </div>
+              <h3 className="text-2xl font-black text-white mb-4 leading-tight">Apakah Anda Yakin?</h3>
+              <p className="text-slate-400 text-sm leading-relaxed mb-10 font-medium">{confirmDialog.message}</p>
+              <div className="flex gap-4">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-5 rounded-[1.5rem] font-black transition-all active:scale-95">BATAL</button>
+                <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-600 hover:bg-red-500 text-white py-5 rounded-[1.5rem] font-black shadow-lg shadow-red-600/20 transition-all active:scale-95">IYA, HAPUS</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* User Editor Modal (Enhanced) */}
       <AnimatePresence>
         {editingUser && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingUser(null)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-slate-900 border border-slate-800 p-8 rounded-[2.5rem] w-full max-w-lg relative z-10 shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                 <h2 className="text-2xl font-black text-white uppercase tracking-tight">Edit Student</h2>
-                 <button onClick={() => setEditingUser(null)} className="p-2 hover:bg-slate-800 rounded-full text-slate-500 transition-colors"><X className="w-6 h-6" /></button>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingUser(null)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" />
+            <motion.div initial={{ scale: 0.95, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 30 }} className="bg-slate-900 border border-white/5 p-10 rounded-[3rem] w-full max-w-xl relative z-10 shadow-2xl">
+              <div className="flex items-center justify-between mb-10">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
+                       <Settings className="w-6 h-6 text-indigo-400" />
+                    </div>
+                    <div>
+                       <h2 className="text-2xl font-black text-white uppercase tracking-tight">Student Profile</h2>
+                       <p className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase">Database Update</p>
+                    </div>
+                 </div>
+                 <button onClick={() => setEditingUser(null)} className="p-3 hover:bg-slate-800 rounded-2xl text-slate-500 hover:text-white transition-all"><X className="w-6 h-6" /></button>
               </div>
-              <form onSubmit={handleUpdateUser} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleUpdateUser} className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
                   <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Full Name</label>
-                    <input value={editingUser.name || ''} onChange={(e) => setEditingUser({...editingUser, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500" />
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                    <input value={editingUser.name || ''} onChange={(e) => setEditingUser({...editingUser, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-4 ring-indigo-500/10 transition-all font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Grade</label>
-                    <select value={editingUser.grade} onChange={(e) => setEditingUser({...editingUser, grade: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none">
-                      <option value="SD">SD</option><option value="SMP">SMP</option><option value="SMA">SMA</option>
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Academic Grade</label>
+                    <select value={editingUser.grade} onChange={(e) => setEditingUser({...editingUser, grade: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold appearance-none">
+                      <option value="SD">Sekolah Dasar (SD)</option>
+                      <option value="SMP">Menengah Pertama (SMP)</option>
+                      <option value="SMA">Menengah Atas (SMA)</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Level</label>
-                    <input type="number" value={editingUser.level} onChange={(e) => setEditingUser({...editingUser, level: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none" />
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Student Level</label>
+                    <input type="number" value={editingUser.level} onChange={(e) => setEditingUser({...editingUser, level: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total XP</label>
-                    <input type="number" value={editingUser.totalXp} onChange={(e) => setEditingUser({...editingUser, totalXp: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none" />
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Experience (XP)</label>
+                    <input type="number" value={editingUser.totalXp} onChange={(e) => setEditingUser({...editingUser, totalXp: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold text-yellow-400" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Game Points</label>
-                    <input type="number" value={editingUser.gamePoints} onChange={(e) => setEditingUser({...editingUser, gamePoints: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none" />
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Game Points</label>
+                    <input type="number" value={editingUser.gamePoints} onChange={(e) => setEditingUser({...editingUser, gamePoints: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold text-cyan-400" />
                   </div>
                 </div>
-                <div className="pt-4 flex gap-3">
-                  <button type="button" onClick={() => setEditingUser(null)} className="flex-1 bg-slate-800 text-white py-4 rounded-2xl font-black hover:bg-slate-700 transition-all">CANCEL</button>
-                  <button type="submit" disabled={saveLoading} className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-black hover:bg-indigo-500 flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/20">
-                    {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} SAVE CHANGES
+                <div className="pt-6 flex gap-4">
+                  <button type="button" onClick={() => setEditingUser(null)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-5 rounded-[1.5rem] font-black transition-all active:scale-95 uppercase tracking-wider text-xs">Close</button>
+                  <button type="submit" disabled={saveLoading} className="flex-2 bg-indigo-600 hover:bg-indigo-500 text-white py-5 px-10 rounded-[1.5rem] font-black flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 uppercase tracking-wider text-xs">
+                    {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save Changes
                   </button>
                 </div>
               </form>
