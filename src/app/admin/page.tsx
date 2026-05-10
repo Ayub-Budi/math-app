@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, ShieldCheck, Users, Zap, Star, ChevronLeft, LogOut, Loader2, KeyRound, BookOpen, Sparkles, CheckCircle2, Circle, RefreshCcw, Wand2, Play } from 'lucide-react';
+import { Lock, ShieldCheck, Users, Zap, Star, ChevronLeft, LogOut, Loader2, KeyRound, BookOpen, Sparkles, CheckCircle2, Circle, RefreshCcw, Wand2, Play, Trash2, Settings, Save, X } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SuperAdminPage() {
@@ -52,6 +52,57 @@ export default function SuperAdminPage() {
       setError('Gagal menghubungi server.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [saveLoading, setSaveLoading] = useState(false);
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    
+    // Pastikan passcode ada (ambil dari state atau session storage)
+    const currentPasscode = passcode || sessionStorage.getItem('admin_passcode') || "";
+    
+    setSaveLoading(true);
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: currentPasscode, userId: editingUser.id, ...editingUser })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEditingUser(null);
+        alert("✅ Data User Berhasil Diperbarui!");
+        fetchAdminData(currentPasscode);
+      } else {
+        alert("❌ Gagal: " + (data.error || "Terjadi kesalahan"));
+      }
+    } catch (err) {
+      alert("❌ Error: Gagal menghubungi server");
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    const currentPasscode = passcode || sessionStorage.getItem('admin_passcode') || "";
+    if (!confirm("⚠️ Hapus pengguna ini secara permanen? Seluruh progres belajar dan game akan hilang!")) return;
+    try {
+      const res = await fetch(`/api/admin/users?passcode=${currentPasscode}&userId=${userId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ User Berhasil Dihapus!");
+        fetchAdminData(currentPasscode);
+      } else {
+        alert("❌ Gagal Hapus: " + (data.error || "Terjadi kesalahan"));
+      }
+    } catch (err) {
+      alert("❌ Error: Gagal menghubungi server");
     }
   };
 
@@ -274,7 +325,7 @@ export default function SuperAdminPage() {
               <div className="overflow-x-auto overflow-y-auto max-h-[600px]">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead className="bg-slate-950/50 text-slate-400 font-bold uppercase tracking-wider text-xs sticky top-0 z-10">
-                    <tr><th className="px-6 py-4">Nama User</th><th className="px-6 py-4">Tingkat</th><th className="px-6 py-4">Level</th><th className="px-6 py-4">EXP</th><th className="px-6 py-4">Game Points</th><th className="px-6 py-4">Waktu Bergabung</th></tr>
+                    <tr><th className="px-6 py-4">Nama User</th><th className="px-6 py-4">Tingkat</th><th className="px-6 py-4">Level</th><th className="px-6 py-4">EXP</th><th className="px-6 py-4">Game Points</th><th className="px-6 py-4">Waktu Bergabung</th><th className="px-6 py-4">Aksi</th></tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/50">
                     {users.map((user) => (
@@ -285,6 +336,16 @@ export default function SuperAdminPage() {
                         <td className="px-6 py-4 font-mono text-yellow-400 font-bold">{user.totalXp.toLocaleString()}</td>
                         <td className="px-6 py-4 font-mono text-cyan-400 font-bold">{user.gamePoints.toLocaleString()}</td>
                         <td className="px-6 py-4 text-xs text-slate-400 font-medium">{formatDate(user.createdAt)}</td>
+                        <td className="px-6 py-4">
+                           <div className="flex items-center gap-2">
+                              <button onClick={() => setEditingUser(user)} className="p-2 bg-slate-800 hover:bg-indigo-600 rounded-xl transition-all text-slate-400 hover:text-white" title="Edit User">
+                                 <Settings className="w-4 h-4" />
+                              </button>
+                              <button onClick={() => handleDeleteUser(user.id)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-xl transition-all text-slate-400 hover:text-white" title="Hapus User">
+                                 <Trash2 className="w-4 h-4" />
+                              </button>
+                           </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -358,6 +419,53 @@ export default function SuperAdminPage() {
           </div>
         )}
       </main>
+
+      {/* User Editor Modal */}
+      <AnimatePresence>
+        {editingUser && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingUser(null)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-slate-900 border border-slate-800 p-8 rounded-[2.5rem] w-full max-w-lg relative z-10 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                 <h2 className="text-2xl font-black text-white uppercase tracking-tight">Edit Student</h2>
+                 <button onClick={() => setEditingUser(null)} className="p-2 hover:bg-slate-800 rounded-full text-slate-500 transition-colors"><X className="w-6 h-6" /></button>
+              </div>
+              <form onSubmit={handleUpdateUser} className="space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Full Name</label>
+                    <input value={editingUser.name || ''} onChange={(e) => setEditingUser({...editingUser, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Grade</label>
+                    <select value={editingUser.grade} onChange={(e) => setEditingUser({...editingUser, grade: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none">
+                      <option value="SD">SD</option><option value="SMP">SMP</option><option value="SMA">SMA</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Level</label>
+                    <input type="number" value={editingUser.level} onChange={(e) => setEditingUser({...editingUser, level: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total XP</label>
+                    <input type="number" value={editingUser.totalXp} onChange={(e) => setEditingUser({...editingUser, totalXp: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Game Points</label>
+                    <input type="number" value={editingUser.gamePoints} onChange={(e) => setEditingUser({...editingUser, gamePoints: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:outline-none" />
+                  </div>
+                </div>
+                <div className="pt-4 flex gap-3">
+                  <button type="button" onClick={() => setEditingUser(null)} className="flex-1 bg-slate-800 text-white py-4 rounded-2xl font-black hover:bg-slate-700 transition-all">CANCEL</button>
+                  <button type="submit" disabled={saveLoading} className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-black hover:bg-indigo-500 flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/20">
+                    {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} SAVE CHANGES
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
