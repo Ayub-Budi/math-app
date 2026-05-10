@@ -30,6 +30,8 @@ model User {
   titles            String?   @db.Text // Menyimpan array julukan dalam format JSON
   gameProgress      GameProgress[]
   learningProgress  LearningProgress[]
+
+  @@map("user")
 }
 
 model MathTopic {
@@ -40,6 +42,8 @@ model MathTopic {
   difficulty  Int
   questions   Question[]
   userProgress UserProgress[]
+
+  @@map("mathtopic")
 }
 
 model Question {
@@ -50,6 +54,8 @@ model Question {
   correctAnswer String
   options       Json      // For multiple choice
   xpReward      Int       @default(10)
+
+  @@map("question")
 }
 
 model UserProgress {
@@ -61,6 +67,8 @@ model UserProgress {
   isUnlocked  Boolean   @default(false)
   isCompleted Boolean   @default(false)
   highScore   Int       @default(0)
+
+  @@map("userprogress")
 }
 
 model Analytics {
@@ -70,6 +78,8 @@ model Analytics {
   date        DateTime @default(now())
   solvedCount Int      @default(0)
   accuracy    Float    @default(0)
+
+  @@map("analytics")
 }
 
 model Theory {
@@ -81,6 +91,7 @@ model Theory {
   updatedAt DateTime @updatedAt
   
   @@unique([category, topicId, grade])
+  @@map("theory")
 }
 
 model AIBankSoal {
@@ -92,6 +103,7 @@ model AIBankSoal {
   updatedAt DateTime @updatedAt
   
   @@unique([category, topicId, grade])
+  @@map("aibanksoal")
 }
 
 model GameProgress {
@@ -104,6 +116,7 @@ model GameProgress {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, gameId])
+  @@map("gameprogress")
 }
 
 model LearningProgress {
@@ -117,4 +130,5 @@ model LearningProgress {
   updatedAt  DateTime @updatedAt
 
   @@unique([userId, categoryId, topicId])
+  @@map("learningprogress")
 }
