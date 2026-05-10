@@ -31,7 +31,7 @@ model User {
   gameProgress      GameProgress[]
   learningProgress  LearningProgress[]
 
-  @@map("user")
+  @@map("users")
 }
 
 model MathTopic {
