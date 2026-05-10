@@ -177,43 +177,50 @@ export default function SuperAdminPage() {
     }
   };
 
-  const handleGenerateAll = async () => {
-    if (!confirm("Peringatan: Ini akan men-generate konten AI untuk SEMUA topik yang belum ada. Proses ini mungkin memakan waktu beberapa menit. Lanjutkan?")) return;
-    
-    setBulkStatus('Memulai proses pemetaan konten...');
-    setIsLoading(true);
-    
-    try {
-      for (const cat of contentStatus) {
-        for (const topic of cat.topics) {
-          for (const g of topic.statusByGrade) {
-            if (!g.theoryStatus) {
-              setBulkStatus(`Generasi TEORI: ${cat.title} - ${topic.title} (${g.grade})`);
-              await fetch('/api/admin/content', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ passcode, category: cat.id, topicId: topic.id, grade: g.grade, type: 'theory' })
-              });
-            }
-            if (!g.questionsStatus) {
-              setBulkStatus(`Generasi SOAL: ${cat.title} - ${topic.title} (${g.grade})`);
-              await fetch('/api/admin/content', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ passcode, category: cat.id, topicId: topic.id, grade: g.grade, type: 'questions' })
-              });
+  const handleGenerateAll = () => {
+    setConfirmDialog({
+      message: "Peringatan: Ini akan men-generate konten AI untuk SEMUA topik yang belum ada. Proses ini mungkin memakan waktu beberapa menit. Lanjutkan?",
+      onConfirm: async () => {
+        setConfirmDialog(null);
+        setBulkStatus('Memulai proses pemetaan konten...');
+        setIsLoading(true);
+        
+        try {
+          const currentPasscode = passcode || sessionStorage.getItem('admin_passcode') || "";
+          for (const cat of contentStatus) {
+            for (const topic of cat.topics) {
+              for (const g of topic.statusByGrade) {
+                if (!g.theoryStatus) {
+                  setBulkStatus(`Generasi TEORI: ${cat.title} - ${topic.title} (${g.grade})`);
+                  await fetch('/api/admin/content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ passcode: currentPasscode, category: cat.id, topicId: topic.id, grade: g.grade, type: 'theory' })
+                  });
+                }
+                if (!g.questionsStatus) {
+                  setBulkStatus(`Generasi SOAL: ${cat.title} - ${topic.title} (${g.grade})`);
+                  await fetch('/api/admin/content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ passcode: currentPasscode, category: cat.id, topicId: topic.id, grade: g.grade, type: 'questions' })
+                  });
+                }
+              }
             }
           }
+          showNotification("Seluruh konten berhasil di-sinkronisasi!", 'success');
+          setBulkStatus('✅ Selesai! Seluruh konten berhasil di-sinkronisasi.');
+          fetchContentStatus(currentPasscode);
+        } catch (err) {
+          showNotification("Terjadi kesalahan saat bulk generation", 'error');
+          setBulkStatus('❌ Terjadi kesalahan saat bulk generation.');
+        } finally {
+          setIsLoading(false);
+          setTimeout(() => setBulkStatus(''), 5000);
         }
       }
-      setBulkStatus('✅ Selesai! Seluruh konten berhasil di-sinkronisasi.');
-      fetchContentStatus(passcode);
-    } catch (err) {
-      setBulkStatus('❌ Terjadi kesalahan saat bulk generation.');
-    } finally {
-      setIsLoading(false);
-      setTimeout(() => setBulkStatus(''), 5000);
-    }
+    });
   };
 
   const handleLogin = (e: React.FormEvent) => {
