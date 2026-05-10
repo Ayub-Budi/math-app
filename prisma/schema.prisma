@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String
+  grade         String    @default("SD") // SD, SMP, SMA
+  totalXp       Int       @default(0)
+  gamePoints    Int       @default(0)
+  level         Int       @default(1)
+  streak        Int       @default(0)
+  image         String?   @db.LongText // Untuk menyimpan Base64 atau URL foto profil
+  health        Int       @default(5)
+  lastHealthReset DateTime?
+  lastActive    DateTime?
+  progress      UserProgress[]
+  analytics     Analytics[]
+  createdAt     DateTime  @default(now())
+  titles            String?   @db.Text // Menyimpan array julukan dalam format JSON
+  gameProgress      GameProgress[]
+  learningProgress  LearningProgress[]
+}
+
+model MathTopic {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  difficulty  Int
+  questions   Question[]
+  userProgress UserProgress[]
+}
+
+model Question {
+  id            String    @id @default(cuid())
+  topicId       String
+  topic         MathTopic @relation(fields: [topicId], references: [id])
+  questionText  String
+  correctAnswer String
+  options       Json      // For multiple choice
+  xpReward      Int       @default(10)
+}
+
+model UserProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  topicId     String
+  topic       MathTopic @relation(fields: [topicId], references: [id])
+  isUnlocked  Boolean   @default(false)
+  isCompleted Boolean   @default(false)
+  highScore   Int       @default(0)
+}
+
+model Analytics {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  date        DateTime @default(now())
+  solvedCount Int      @default(0)
+  accuracy    Float    @default(0)
+}
+
+model Theory {
+  id        String   @id @default(cuid())
+  category  String
+  topicId   String?  // Optional for backward compatibility, but we will use it
+  grade     String
+  content   Json
+  updatedAt DateTime @updatedAt
+  
+  @@unique([category, topicId, grade])
+}
+
+model AIBankSoal {
+  id        String   @id @default(cuid())
+  category  String
+  topicId   String?
+  grade     String
+  questions Json     // Menyimpan array soal dalam format JSON
+  updatedAt DateTime @updatedAt
+  
+  @@unique([category, topicId, grade])
+}
+
+model GameProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  gameId    String
+  level     Int      @default(1)
+  isMaxed   Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, gameId])
+}
+
+model LearningProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  categoryId String   // e.g. 'aritmatika'
+  topicId    String   // e.g. 'penjumlahan-dasar'
+  score      Int      @default(0)
+  isCompleted Boolean @default(false)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, categoryId, topicId])
+}

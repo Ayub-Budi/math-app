@@ -1,26 +1,69 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+  
+  .shake {
+    animation: shake 0.2s ease-in-out infinite;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+}
+
+/* Custom Game styles */
+.game-card {
+  @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/10 p-6 backdrop-blur-lg transition-all hover:scale-105 hover:bg-white/20;
+}
+
+.xp-badge {
+  @apply inline-flex items-center rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-yellow-900 shadow-lg;
+}
+
+.level-progress {
+  @apply h-4 w-full overflow-hidden rounded-full bg-gray-200 shadow-inner;
+}
+
+.level-progress-fill {
+  @apply h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500;
 }
