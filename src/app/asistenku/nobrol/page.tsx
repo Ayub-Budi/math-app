@@ -171,15 +171,18 @@ export default function NobrolPage() {
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white uppercase tracking-tighter flex items-center justify-center gap-3">
             NOBROL <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
           </h1>
-          <div className="flex flex-col items-center gap-2">
-            <span className={`px-4 py-1 rounded-full text-[9px] md:text-xs font-black uppercase tracking-[0.3em] transition-colors ${
-              isListening ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-              isLoading ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse' :
-              isSpeaking ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' :
-              'bg-slate-800 text-slate-500 border border-slate-700'
-            }`}>
-              {isListening ? 'Mendengarkan...' : isLoading ? 'Berpikir...' : isSpeaking ? 'AsistenKu Bicara' : 'Standby'}
-            </span>
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className={`px-4 py-1 rounded-full text-[9px] md:text-xs font-black uppercase tracking-[0.3em] transition-colors ${
+                isListening ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                isLoading ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse' :
+                isSpeaking ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' :
+                'bg-slate-800 text-slate-500 border border-slate-700'
+              }`}>
+                {isListening ? 'Mendengarkan...' : isLoading ? 'Berpikir...' : isSpeaking ? 'AsistenKu Bicara' : 'Standby'}
+              </span>
+            </div>
+
           </div>
         </div>
 
@@ -199,15 +202,9 @@ export default function NobrolPage() {
         </div>
 
         <div className="flex items-center justify-center gap-4 sm:gap-6 w-full pt-4">
-           <button 
-            onClick={() => setVoiceEnabled(!voiceEnabled)}
-            className={`p-5 sm:p-6 rounded-3xl transition-all shadow-xl active:scale-90 ${voiceEnabled ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}
-           >
-             {voiceEnabled ? <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" /> : <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />}
-           </button>
            <Link 
             href="/asistenku"
-            className="flex-1 max-w-[200px] py-5 sm:py-6 bg-red-500 hover:bg-red-600 text-white rounded-3xl font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(239,68,68,0.2)] transition-all active:scale-95 text-center text-xs sm:text-sm"
+            className="flex-1 max-w-[280px] py-5 sm:py-6 bg-red-500 hover:bg-red-600 text-white rounded-3xl font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(239,68,68,0.2)] transition-all active:scale-95 text-center text-xs sm:text-sm"
            >
              Selesai
            </Link>
