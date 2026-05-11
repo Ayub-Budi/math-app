@@ -153,7 +153,7 @@ export default function AsistenKuPage() {
     const labelMatch = formula.match(/^(.*?)=\s*\\begin{pmatrix}/);
     const label = labelMatch ? labelMatch[1].trim() : '';
     
-    const matrixContentMatch = formula.match(/\\begin{pmatrix}(.*?)\\end{pmatrix}/s);
+    const matrixContentMatch = formula.match(/\\begin{pmatrix}([\s\S]*?)\\end{pmatrix}/);
     if (!matrixContentMatch) return <span key={key}>{formula}</span>;
     
     const rows = matrixContentMatch[1].trim().split('\\\\');
