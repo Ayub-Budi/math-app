@@ -26,7 +26,9 @@ export default function Navbar() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    localStorage.clear();
+    // Hapus cookie userId agar middleware melempar ke login
+    document.cookie = "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     router.push('/');
   };
 

@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { getTopicById, getCategoryById } from '@/lib/topics';
 import confetti from 'canvas-confetti';
+import TopicAssistant from '@/components/TopicAssistant';
 
 export default function TopicLearningPage({ params }: { params: Promise<{ id: string, topicId: string }> }) {
   const resolvedParams = use(params);
@@ -397,6 +398,15 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
             </div>
           </motion.div>
         </main>
+
+        {/* Neural AI Tutor */}
+        {isMounted && (
+          <TopicAssistant 
+            topicTitle={topicData.title}
+            categoryTitle={category.title}
+            grade={typeof window !== 'undefined' ? (localStorage.getItem('userGrade') || 'SD') : 'SD'}
+          />
+        )}
       </div>
     );
   }
@@ -530,6 +540,7 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
           </>
         )}
       </AnimatePresence>
+
     </div>
   );
 }
