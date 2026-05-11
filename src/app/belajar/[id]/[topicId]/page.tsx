@@ -2,11 +2,11 @@
 
 import { useState, useEffect, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Trophy, Brain, Loader2, ArrowLeft, Star, RefreshCcw, Trash2 } from 'lucide-react';
+import { X, Heart, Trophy, Brain, Loader2, ArrowLeft, ArrowRight, Star, RefreshCcw, Info, PlayCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
-import { getTopicById } from '@/lib/topics';
+import { getTopicById, getCategoryById } from '@/lib/topics';
 import confetti from 'canvas-confetti';
 
 export default function TopicLearningPage({ params }: { params: Promise<{ id: string, topicId: string }> }) {
@@ -16,6 +16,7 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
   const topicId = resolvedParams.topicId;
 
   const topicData = getTopicById(categoryId, topicId);
+  const category = getCategoryById(categoryId);
 
   const [questions, setQuestions] = useState<any[]>([]);
   const [theoryContent, setTheoryContent] = useState<any>('');
@@ -108,12 +109,11 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
     if (viewMode === 'quiz' && !showFinished && isCorrect === null && timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
-        // XP berkurang setiap detik, min 5 XP
         setXpPotential((prev) => Math.max(5, Math.floor(20 * (timeLeft / 15))));
       }, 1000);
       return () => clearInterval(timer);
     } else if (timeLeft === 0 && isCorrect === null) {
-      handleAnswer(''); // Time out considered wrong
+      handleAnswer(''); 
     }
   }, [viewMode, showFinished, isCorrect, timeLeft]);
 
@@ -122,7 +122,6 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
     if (!userId) return;
 
     try {
-      // Update XP Progress
       await fetch('/api/learning/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,7 +134,6 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
         })
       });
 
-      // Update Health
       await fetch('/api/user', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -158,8 +156,6 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
 
     if (correct) {
       setScore(score + xpPotential);
-    } else {
-      // deductHeart removed for Quiz
     }
   };
 
@@ -197,62 +193,22 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
     setShowFinished(false);
     setTimeLeft(15);
     setXpPotential(20);
-    loadQuestions(); // Ambil soal baru agar tidak bosan
-  };
-
-  const handleGlobalReset = async () => {
-    if (!confirm("Reset seluruh progres akun (XP, Level, Nyawa) untuk mulai dari nol?")) return;
-    
-    const userId = localStorage.getItem('userId');
-    try {
-      const res = await fetch('/api/user/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-      });
-      if (res.ok) {
-        alert("Akun berhasil direset! Selamat belajar kembali.");
-        window.location.reload();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const resetTopicProgress = async () => {
-    if (!confirm("Hapus progres bab ini dari database? Skor akan hilang dan status bab akan menjadi 'Belum Selesai'.")) return;
-    
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
-
-    try {
-      const res = await fetch('/api/learning/progress/reset-topic', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, categoryId, topicId })
-      });
-      if (res.ok) {
-        alert("Progres berhasil dihapus!");
-        window.location.reload();
-      }
-    } catch (err) {
-      console.error("Gagal reset progres bab:", err);
-    }
+    loadQuestions();
   };
 
   if (!isMounted) {
-    return <div className="min-h-screen bg-gray-50" />;
+    return <div className="min-h-screen bg-[#020617]" />;
   }
 
-  if (!topicData) {
+  if (!topicData || !category) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8 bg-white rounded-3xl shadow-xl border border-gray-100">
-          <Brain className="w-16 h-16 text-indigo-200 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Topik Tidak Ditemukan</h2>
-          <p className="text-gray-500 mb-6">Maaf, bab yang kamu cari tidak tersedia.</p>
-          <Link href={`/belajar/${categoryId}`} className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all">
-            Kembali ke Daftar Bab
+      <div className="min-h-screen flex items-center justify-center bg-[#020617]">
+        <div className="text-center p-6 bg-slate-900/40 backdrop-blur-3xl rounded-3xl border border-white/5 max-w-sm mx-4">
+          <Brain className="w-12 h-12 text-indigo-400 mx-auto mb-4" />
+          <h2 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Misi Tidak Ditemukan</h2>
+          <p className="text-slate-400 text-sm mb-6">Maaf, data misi atau kategori tidak tersedia.</p>
+          <Link href="/belajar" className="block w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-black hover:bg-indigo-500 transition-all uppercase tracking-widest text-xs">
+            Kembali ke Akademi
           </Link>
         </div>
       </div>
@@ -261,29 +217,32 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
 
   if (showFinished) {
     return (
-      <div className={`min-h-screen ${hearts > 0 ? 'bg-indigo-600' : 'bg-red-600'} flex flex-col items-center justify-center p-4 text-white`}>
+      <div className={`min-h-screen ${hearts > 0 ? 'bg-[#020617]' : 'bg-red-950/20'} flex flex-col items-center justify-center p-4 text-white relative overflow-hidden`}>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.15)_0%,transparent_70%)]" />
         <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="text-center"
+          className="text-center relative z-10 w-full max-w-md"
         >
-          <Trophy className="w-24 h-24 text-yellow-400 mx-auto mb-6" />
-          <h1 className="text-4xl font-bold mb-2">Misi Selesai!</h1>
-          <p className="text-xl opacity-90 mb-8">
-            Kamu mendapatkan {score} XP
+          <div className="w-20 h-20 md:w-32 md:h-32 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-10 border-4 border-yellow-500/30 shadow-xl">
+            <Trophy className="w-10 h-10 md:w-16 md:h-16 text-yellow-400" />
+          </div>
+          <h1 className="text-3xl md:text-5xl font-black mb-3 uppercase tracking-tighter">Misi Selesai!</h1>
+          <p className="text-base md:text-xl font-black text-indigo-400 mb-8 md:mb-12 uppercase tracking-widest">
+            +{score} EXP TERKUMPUL
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col gap-3 w-full">
             <button 
               onClick={resetQuiz}
-              className="bg-white/20 text-white border-2 border-white/50 font-bold px-8 py-4 rounded-2xl hover:bg-white/30 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-slate-900/50 text-white border border-white/10 font-black py-4 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
             >
-              <RefreshCcw className="w-5 h-5" /> Coba Lagi
+              <RefreshCcw className="w-4 h-4" /> Coba Lagi
             </button>
             <button 
               onClick={() => router.push(`/belajar/${categoryId}`)}
-              className="bg-white text-indigo-600 font-bold px-8 py-4 rounded-2xl shadow-xl hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-white text-indigo-900 font-black py-4 rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
             >
-              Kembali ke Daftar Bab
+              Lanjutkan Petualangan
             </button>
           </div>
         </motion.div>
@@ -291,89 +250,149 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  // Teori View
   if (viewMode === 'theory') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#020617] text-slate-200">
         <Navbar />
-        <main className="max-w-3xl mx-auto px-4 py-12 md:pt-24">
+        
+        <main className="max-w-5xl mx-auto px-4 py-6 md:py-12 relative z-10">
+          <Link href={`/belajar/${categoryId}`} className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-400 mb-6 md:mb-8 font-black uppercase text-[10px] tracking-widest transition-all group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Kembali ke Akademi
+          </Link>
+
           <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
+            initial={{ opacity: 0, y: 10 }} 
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-[3rem] shadow-xl overflow-hidden"
+            className="space-y-6 md:space-y-10"
           >
-            <div className="bg-indigo-600 p-8 text-white relative overflow-hidden">
-              <Link href={`/belajar/${categoryId}`} className="absolute top-4 left-4 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors">
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </Link>
-              <h1 className="text-3xl font-bold mb-2 mt-8 text-center">{topicData.title}</h1>
-              <p className="opacity-80 text-center">{topicData.description}</p>
-            </div>
+            <header className="relative p-6 md:p-10 rounded-2xl md:rounded-3xl overflow-hidden border border-white/5 bg-slate-900/20 backdrop-blur-3xl shadow-xl">
+               <div className={`absolute top-0 right-0 w-48 h-48 md:w-64 md:h-64 ${category.color} opacity-10 rounded-full blur-3xl -mr-16 -mt-16`} />
+               
+               <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
+                 <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl ${category.color} flex items-center justify-center shadow-lg shrink-0`}>
+                    <Brain className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                 </div>
+                 <div className="text-center md:text-left flex-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-3">
+                       Modul Pembelajaran
+                    </div>
+                    <h1 className="text-2xl md:text-4xl font-black text-white mb-3 tracking-tight leading-tight">
+                      {topicData.title}
+                    </h1>
+                    <p className="text-slate-400 text-sm md:text-base font-medium leading-relaxed max-w-2xl">
+                      {topicData.description}
+                    </p>
+                 </div>
+               </div>
+            </header>
             
-            <div className="p-8 space-y-6 text-gray-700">
-              {loadingTheory ? (
-                <div className="flex flex-col items-center py-10">
-                  <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-4" />
-                  <p className="text-gray-400 italic text-sm">AI sedang menyusun materi khusus untukmu...</p>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  {typeof theoryContent === 'string' ? (
-                    <p className="text-gray-600 italic">{theoryContent}</p>
-                  ) : (
-                    <>
-                      <section>
-                        <p className="text-lg leading-relaxed text-gray-700 font-medium">
-                          {theoryContent?.introduction}
-                        </p>
-                      </section>
-
-                      {theoryContent?.sections?.map((section: any, idx: number) => (
-                        <section key={idx} className="space-y-3 bg-indigo-50/50 p-6 rounded-3xl">
-                          <h2 className="text-2xl font-bold text-indigo-900 flex items-center gap-2">
-                            <span className="w-8 h-8 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-sm">{idx + 1}</span>
-                            {section.heading}
-                          </h2>
-                          <p className="leading-relaxed text-gray-700">{section.content}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
+              <div className="lg:col-span-8 space-y-10 md:space-y-12">
+                {loadingTheory ? (
+                  <div className="flex flex-col items-center py-24 space-y-4">
+                    <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                    <p className="text-slate-600 font-black uppercase tracking-widest text-[10px]">Sinkronisasi Data...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-10 md:space-y-16">
+                    {typeof theoryContent === 'string' ? (
+                      <p className="text-slate-400 italic text-center font-medium leading-relaxed text-base">{theoryContent}</p>
+                    ) : (
+                      <>
+                        <section className="relative">
+                          <p className="text-base md:text-lg leading-relaxed text-slate-300 font-serif italic border-l-4 border-indigo-500/30 pl-5">
+                            {theoryContent?.introduction}
+                          </p>
                         </section>
-                      ))}
 
-                      {theoryContent?.example && (
-                        <div className="bg-gradient-to-br from-indigo-100 to-purple-100 p-8 rounded-3xl border border-indigo-200 shadow-sm relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-white/40 rounded-full -mr-10 -mt-10 blur-2xl" />
-                          <h3 className="text-xl font-black text-indigo-900 mb-4 flex items-center gap-2">
-                            <Brain className="w-6 h-6 text-indigo-600" /> Contoh Soal
-                          </h3>
-                          <p className="font-bold text-gray-800 mb-6 text-lg">{theoryContent?.example?.question}</p>
-                          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-indigo-100 shadow-sm">
-                            <p className="text-sm text-indigo-500 uppercase font-black mb-2 tracking-widest">Penyelesaian:</p>
-                            <p className="text-indigo-950 font-medium leading-relaxed">{theoryContent?.example?.solution}</p>
-                          </div>
+                        <div className="space-y-12 md:space-y-16">
+                          {theoryContent?.sections?.map((section: any, idx: number) => (
+                            <section key={idx} className="relative group">
+                              <div className="flex flex-col space-y-4">
+                                <h2 className="text-lg md:text-xl font-black text-white flex items-center gap-4 tracking-tight">
+                                  <span className="shrink-0 w-10 h-10 rounded-xl bg-slate-900 border border-white/5 text-indigo-400 flex items-center justify-center text-xs font-black shadow-lg">
+                                    0{idx + 1}
+                                  </span>
+                                  {section.heading}
+                                </h2>
+                                <div className="pl-0 md:pl-14">
+                                  <p className="text-slate-400 text-sm md:text-base leading-relaxed font-medium">
+                                    {section.content}
+                                  </p>
+                                </div>
+                              </div>
+                            </section>
+                          ))}
                         </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-              
-              <div className="pt-8">
-                {/* Heart indicator removed for Quiz */}
-                <button 
-                  onClick={() => setViewMode('quiz')}
-                  disabled={loading}
-                  className="w-full bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-indigo-700 hover:scale-[1.02] transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'MENYIAPKAN KUIS...' : 'MULAI KUIS PEMAHAMAN 🚀'}
-                </button>
-                
-                {isTopicCompleted && process.env.NODE_ENV === 'development' && (
-                  <button 
-                    onClick={resetTopicProgress}
-                    className="w-full mt-4 flex items-center justify-center gap-2 text-red-400 hover:text-red-600 text-sm font-bold transition-colors py-2"
-                  >
-                    <Trash2 className="w-4 h-4" /> Hapus Progres Bab Ini (Dev Mode)
-                  </button>
+
+                        {theoryContent?.example && (
+                          <section className="relative p-6 md:p-8 rounded-2xl bg-gradient-to-br from-indigo-600/10 to-purple-600/5 border border-white/5 shadow-xl overflow-hidden group">
+                            <div className="relative z-10 space-y-6">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <Star className="w-5 h-5 text-white fill-current" />
+                                  </div>
+                                  <h3 className="text-lg font-black text-white tracking-tight">Contoh Misi</h3>
+                                </div>
+
+                              <div className="bg-slate-950/60 p-5 md:p-6 rounded-xl border border-white/5">
+                                <p className="text-base md:text-lg font-bold text-white leading-relaxed tracking-tight">
+                                  {theoryContent?.example?.question}
+                                </p>
+                              </div>
+
+                              <div className="bg-indigo-500/5 border border-indigo-500/10 p-6 rounded-xl">
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-3">Analisis Neural</span>
+                                <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed">
+                                  {theoryContent?.example?.solution}
+                                </p>
+                              </div>
+                            </div>
+                          </section>
+                        )}
+                      </>
+                    )}
+                  </div>
                 )}
+              </div>
+
+              <div className="lg:col-span-4 space-y-6">
+                <div className="sticky top-24 space-y-6">
+                  <div className="p-6 md:p-8 rounded-2xl bg-slate-900/30 backdrop-blur-3xl border border-white/5 shadow-xl">
+                    <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6">Status Misi</h4>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-black uppercase text-slate-500 tracking-widest">Reward</span>
+                        <span className="text-lg font-black text-yellow-500">+20 EXP</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-black uppercase text-slate-500 tracking-widest">Kesulitan</span>
+                        <span className="text-[10px] font-black text-white px-3 py-1 bg-white/5 rounded-full border border-white/10 uppercase tracking-widest">{category.level}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-8 pt-8 border-t border-white/5">
+                      <button 
+                        onClick={() => setViewMode('quiz')}
+                        disabled={loading}
+                        className="group w-full bg-white text-indigo-900 font-black py-4 rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                      >
+                        {loading ? 'SINKRONISASI...' : (
+                          <>
+                            MULAI <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-xl bg-indigo-500/5 border border-indigo-500/10 flex items-start gap-3">
+                    <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                    <p className="text-[10px] font-bold text-slate-500 leading-relaxed uppercase tracking-wide">
+                      Selesaikan materi ini untuk membuka kuis dan klaim EXP!
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -382,122 +401,133 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  // Quiz View
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <header className="p-4 flex items-center justify-between border-b bg-white shadow-sm">
-        <Link href={`/belajar/${categoryId}`} className="p-2 hover:bg-gray-100 rounded-full">
-          <X className="w-6 h-6 text-gray-500" />
+    <div className="min-h-screen bg-[#020617] flex flex-col text-slate-200">
+      <header className="p-4 md:px-8 md:py-6 flex items-center justify-between border-b border-white/5 bg-slate-900/10 backdrop-blur-3xl sticky top-0 z-[60]">
+        <Link href={`/belajar/${categoryId}`} className="p-2 hover:bg-white/5 rounded-xl transition-colors border border-white/5">
+          <X className="w-5 h-5 text-slate-500" />
         </Link>
         
-        <div className="flex-1 mx-4 max-w-xl">
-          <div className="flex justify-between text-xs font-bold text-gray-400 mb-1">
-            <span>PROGRES</span>
-            <span>WAKTU: {timeLeft}s</span>
+        <div className="flex-1 mx-4 md:mx-12 max-w-2xl">
+          <div className="flex justify-between text-[9px] font-black text-slate-600 mb-2 uppercase tracking-widest">
+            <span>Progres: {currentQuestion + 1}/{questions.length}</span>
+            <span className={timeLeft < 5 ? 'text-red-500 animate-pulse' : 'text-indigo-400'}>Waktu: {timeLeft}S</span>
           </div>
-          <div className="h-4 bg-gray-100 rounded-full overflow-hidden relative">
+          <div className="h-2 bg-slate-950 rounded-full overflow-hidden border border-white/5">
             <motion.div 
-              className="h-full bg-green-500"
+              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${((currentQuestion) / (questions.length || 1)) * 100}%` }}
-            />
-            {/* Timer Overlay Bar */}
-            <motion.div 
-              className="absolute top-0 right-0 h-full bg-yellow-400/30"
-              initial={{ width: '100%' }}
-              animate={{ width: `${(timeLeft / 15) * 100}%` }}
-              transition={{ duration: 1, ease: 'linear' }}
+              transition={{ duration: 0.3 }}
             />
           </div>
         </div>
 
-        {/* Heart indicator removed for Quiz */}
+        <div className="flex items-center gap-2">
+           <div className="bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2">
+             <Heart className="w-4 h-4 text-red-500 fill-current" />
+             <span className="font-black text-sm text-white">{hearts}</span>
+           </div>
+        </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center p-6 max-w-3xl mx-auto w-full">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 max-w-4xl mx-auto w-full">
         {questions.length > 0 ? (
           <motion.div
             key={currentQuestion}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="w-full"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full space-y-6 md:space-y-10"
           >
-            <div className="flex justify-center mb-6">
-               <div className="bg-yellow-100 text-yellow-700 px-6 py-2 rounded-full font-black flex items-center gap-2 shadow-sm border border-yellow-200">
-                  <Star className="w-5 h-5 fill-current" />
-                  Potensi XP: +{xpPotential}
+            <div className="text-center">
+               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 text-yellow-500 font-black border border-yellow-500/20 uppercase tracking-widest text-[10px]">
+                  <Star className="w-4 h-4 fill-current" />
+                  Potensial: +{xpPotential} EXP
                </div>
             </div>
 
-            <div className="bg-white p-8 md:p-12 rounded-[3rem] shadow-xl border border-gray-100 mb-8 relative overflow-hidden">
-              <div className="absolute top-0 left-0 h-1 bg-yellow-400 transition-all duration-1000" style={{ width: `${(timeLeft/15)*100}%` }} />
-              <h2 className="text-2xl md:text-3xl font-black text-gray-800 text-center leading-relaxed">
+            <div className="relative bg-slate-900/40 backdrop-blur-3xl p-6 md:p-10 rounded-2xl md:rounded-3xl border border-white/5 shadow-xl text-center">
+              <h2 className="text-lg md:text-2xl font-black text-white leading-relaxed tracking-tight uppercase">
                 {questions[currentQuestion]?.text}
               </h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-              {questions[currentQuestion]?.options?.map((option: string) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full">
+              {questions[currentQuestion]?.options?.map((option: string, idx: number) => (
                 <button
                   key={option}
                   onClick={() => handleAnswer(option)}
                   disabled={isCorrect !== null}
                   className={`
-                    w-full p-6 text-center text-xl font-bold rounded-3xl border-4 transition-all shadow-sm
+                    group w-full p-4 md:p-6 text-center text-base md:text-lg font-black rounded-xl md:rounded-2xl border-2 transition-all shadow-md relative overflow-hidden
                     ${selectedAnswer === option 
-                      ? (isCorrect ? 'bg-green-50 border-green-500 text-green-700 shadow-green-100' : 'bg-red-50 border-red-500 text-red-700 shadow-red-100')
-                      : 'bg-white border-gray-100 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-md text-gray-600'}
+                      ? (isCorrect ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-red-500/20 border-red-500 text-red-400')
+                      : 'bg-slate-900/40 border-white/5 hover:border-indigo-500 hover:bg-indigo-600/10 text-slate-500 hover:text-white'}
                   `}
                 >
-                  {option}
+                  <div className="relative z-10 flex items-center justify-center gap-3">
+                    <span className="text-[10px] font-black text-slate-700 group-hover:text-indigo-400 uppercase tracking-widest">{String.fromCharCode(65 + idx)}</span>
+                    <span>{option}</span>
+                  </div>
                 </button>
               ))}
             </div>
           </motion.div>
         ) : (
-          <div className="text-center">
-            <p className="text-gray-500 italic">Gagal memuat soal. Silakan muat ulang halaman.</p>
+          <div className="text-center py-24 space-y-4">
+            <Loader2 className="w-10 h-10 text-indigo-500 animate-spin mx-auto" />
+            <p className="text-slate-600 font-black uppercase tracking-widest text-[10px]">Menghasilkan Misi...</p>
           </div>
         )}
       </main>
 
-      {/* Feedback Bar */}
       <AnimatePresence>
         {isCorrect !== null && (
-          <motion.div 
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            className={`fixed bottom-0 left-0 right-0 p-6 md:p-8 border-t-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-50 
-              ${isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}
-          >
-            <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-4 text-center md:text-left">
-                <div className={`p-4 rounded-full shadow-inner ${isCorrect ? 'bg-green-500' : 'bg-red-500'} text-white`}>
-                  {isCorrect ? <Trophy className="w-8 h-8" /> : <Brain className="w-8 h-8" />}
-                </div>
-                <div>
-                  <h3 className={`text-2xl font-black ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
-                    {isCorrect ? `Luar Biasa! +${xpPotential} XP` : 'Ups, Tetap Semangat!'}
-                  </h3>
-                  {!isCorrect && questions[currentQuestion] && (
-                    <p className="text-red-600 font-bold mt-1 text-lg">
-                      Jawaban yang benar: <span className="bg-white px-3 py-1 rounded-md shadow-sm border border-red-200">{questions[currentQuestion].answer}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
-              <button 
-                onClick={nextQuestion}
-                className={`w-full md:w-auto px-12 py-4 rounded-2xl font-black text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${isCorrect ? 'bg-green-500 hover:bg-green-400' : 'bg-red-500 hover:bg-red-400'}`}
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-[#020617]/60 backdrop-blur-md z-[80]"
+            />
+            
+            <div className="fixed inset-0 flex items-center justify-center z-[100] p-4">
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className={`w-full max-w-sm p-8 rounded-[2rem] border-4 md:border-[6px] shadow-[0_0_100px_rgba(0,0,0,0.5)] backdrop-blur-3xl
+                  ${isCorrect ? 'bg-emerald-950/90 border-emerald-500' : 'bg-red-950/90 border-red-500'}`}
               >
-                {currentQuestion < questions.length - 1 && hearts > 0 ? 'LANJUT SOAL' : 'SELESAI'}
-              </button>
+                <div className="flex flex-col items-center text-center gap-6">
+                  <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center shadow-2xl ${isCorrect ? 'bg-emerald-500' : 'bg-red-500'} text-white`}>
+                    {isCorrect ? <Trophy className="w-8 h-8 md:w-10 md:h-10" /> : <Brain className="w-8 h-8 md:w-10 md:h-10" />}
+                  </div>
+                  
+                  <div>
+                    <h3 className={`text-2xl md:text-3xl font-black uppercase tracking-tight mb-2 ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {isCorrect ? `Sempurna!` : `Oops!`}
+                    </h3>
+                    {!isCorrect && questions[currentQuestion] && (
+                      <div className="space-y-2">
+                        <span className="text-red-400/60 font-black text-[10px] uppercase tracking-[0.2em]">Kunci Jawaban</span>
+                        <div className="text-white bg-red-600 px-4 py-2 rounded-xl text-lg md:text-xl font-black shadow-lg">
+                          {questions[currentQuestion].answer}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <button 
+                    onClick={nextQuestion}
+                    className={`w-full py-4 md:py-5 rounded-2xl font-black text-sm md:text-base text-white shadow-xl transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-widest ${isCorrect ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-red-500 hover:bg-red-400'}`}
+                  >
+                    {currentQuestion < questions.length - 1 ? 'Misi Selanjutnya' : 'Klaim Hadiah'}
+                  </button>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

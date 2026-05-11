@@ -147,11 +147,11 @@ export default function AsistenKuPage() {
   if (!isMounted) return null;
 
   return (
-    <div className="flex flex-col h-screen bg-[#0f172a] text-slate-200">
+    <div className="flex flex-col h-screen bg-[#0f172a] text-slate-200 overflow-x-hidden">
       <Navbar />
       
       {/* Header */}
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 pt-20 pb-4 px-4 sticky top-0 z-10 shadow-lg">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 pt-4 md:pt-24 pb-4 px-4 sticky top-0 z-10 shadow-lg">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/home" className="p-2 bg-slate-800 hover:bg-slate-700 rounded-full transition-colors">
@@ -164,8 +164,8 @@ export default function AsistenKuPage() {
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-white flex items-center gap-2">AsistenKu <Sparkles className="w-4 h-4 text-yellow-400" /></h1>
-              <p className="text-xs text-indigo-300 font-bold tracking-widest uppercase">Tutor AI Matematika</p>
+              <h1 className="text-sm md:text-xl font-black text-white flex items-center gap-2">AsistenKu <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-yellow-400" /></h1>
+              <p className="text-[8px] md:text-xs text-indigo-300 font-bold tracking-widest uppercase">Tutor AI Matematika</p>
             </div>
           </div>
           
@@ -201,20 +201,20 @@ export default function AsistenKuPage() {
                 )}
               </div>
               
-              <div className={`max-w-[80%] flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <div className={`max-w-[90%] md:max-w-[80%] flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 {msg.image && (
-                  <div className="relative rounded-2xl overflow-hidden border-2 border-slate-700 shadow-xl max-w-sm">
+                  <div className="relative rounded-2xl overflow-hidden border-2 border-slate-700 shadow-xl max-w-full md:max-w-sm">
                     <img src={msg.image} alt="Upload" className="w-full h-auto object-contain" />
                   </div>
                 )}
                 
                 {msg.text && (
-                  <div className={`p-4 rounded-3xl shadow-md ${
+                  <div className={`p-3 md:p-4 rounded-2xl md:rounded-3xl shadow-md ${
                     msg.role === 'user' 
                       ? 'bg-blue-600 text-white rounded-tr-sm' 
                       : 'bg-slate-800 text-slate-200 rounded-tl-sm border border-slate-700/50'
                   }`}>
-                    <p className="whitespace-pre-wrap leading-relaxed font-medium">
+                    <p className="text-sm md:text-base whitespace-pre-wrap leading-relaxed font-medium">
                       {msg.text.split(/(\*\*.*?\*\*)/g).map((part, i) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
                           return <strong key={i} className={msg.role === 'user' ? 'font-black text-white' : 'font-black text-indigo-300'}>{part.slice(2, -2)}</strong>;
@@ -248,7 +248,7 @@ export default function AsistenKuPage() {
       </main>
 
       {/* Input Area */}
-      <footer className="bg-slate-900 border-t border-slate-800 p-4">
+      <footer className="bg-slate-900 border-t border-slate-800 p-3 md:p-4 pb-20 md:pb-4">
         <div className="max-w-4xl mx-auto">
           {/* Image Preview */}
           <AnimatePresence>
@@ -272,7 +272,7 @@ export default function AsistenKuPage() {
             )}
           </AnimatePresence>
 
-          <div className="flex items-end gap-2 bg-slate-800 p-2 rounded-3xl border border-slate-700 shadow-xl focus-within:border-indigo-500 transition-colors">
+          <div className="flex items-center gap-1 md:gap-2 bg-slate-800 p-1.5 md:p-2 rounded-2xl md:rounded-3xl border border-slate-700 shadow-xl focus-within:border-indigo-500 transition-colors">
             {/* Hidden Inputs */}
             <input 
               type="file" 
@@ -293,17 +293,17 @@ export default function AsistenKuPage() {
 
             <button 
               onClick={() => cameraInputRef.current?.click()}
-              className="p-3 text-slate-400 hover:text-indigo-400 hover:bg-slate-700 rounded-full transition-all shrink-0"
+              className="p-2 md:p-3 text-slate-400 hover:text-indigo-400 hover:bg-slate-700 rounded-full transition-all shrink-0"
               title="Kamera"
             >
-              <Camera className="w-6 h-6" />
+              <Camera className="w-5 h-5 md:w-6 md:h-6" />
             </button>
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="p-3 text-slate-400 hover:text-indigo-400 hover:bg-slate-700 rounded-full transition-all shrink-0"
+              className="p-2 md:p-3 text-slate-400 hover:text-indigo-400 hover:bg-slate-700 rounded-full transition-all shrink-0"
               title="Galeri"
             >
-              <ImagePlus className="w-6 h-6" />
+              <ImagePlus className="w-5 h-5 md:w-6 md:h-6" />
             </button>
 
             <textarea
@@ -311,17 +311,17 @@ export default function AsistenKuPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              placeholder="Ketik soal atau paste gambar (Ctrl+V) di sini..."
-              className="flex-1 max-h-32 min-h-[44px] bg-transparent text-white placeholder-slate-400 border-none focus:ring-0 resize-none py-3 px-2 outline-none w-full"
+              placeholder={isMounted && window.innerWidth < 640 ? "Tanya soal..." : "Ketik soal atau paste gambar (Ctrl+V) di sini..."}
+              className="flex-1 max-h-32 min-h-[40px] bg-transparent text-white placeholder-slate-400 border-none focus:ring-0 resize-none py-2.5 px-2 outline-none w-full scrollbar-hide"
               rows={1}
             />
 
             <button 
               onClick={handleSend}
               disabled={(!input.trim() && !selectedImage) || isLoading}
-              className="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-500 transition-all shrink-0 disabled:opacity-50 disabled:hover:bg-indigo-600 shadow-lg shadow-indigo-600/20 mb-0.5 mr-0.5"
+              className="p-2.5 md:p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-500 transition-all shrink-0 disabled:opacity-50 disabled:hover:bg-indigo-600 shadow-lg shadow-indigo-600/20 mb-0.5 mr-0.5"
             >
-              <Send className="w-5 h-5 ml-1" />
+              <Send className="w-4 h-4 md:w-5 md:h-5 ml-0.5 md:ml-1" />
             </button>
           </div>
           <p className="text-center text-[10px] text-slate-500 mt-3 font-bold tracking-widest uppercase">
@@ -329,6 +329,15 @@ export default function AsistenKuPage() {
           </p>
         </div>
       </footer>
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }

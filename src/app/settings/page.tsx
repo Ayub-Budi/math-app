@@ -177,14 +177,14 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+      <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 md:pt-20 relative">
+    <div className="min-h-screen bg-[#020617] text-slate-200 pb-28 pt-4 md:pt-24 relative selection:bg-indigo-500/30">
       <Navbar />
 
       {/* Toast Notification */}
@@ -194,7 +194,7 @@ export default function SettingsPage() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className={`fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl font-bold shadow-2xl flex items-center gap-3 whitespace-nowrap border ${
+            className={`fixed bottom-28 md:bottom-10 left-1/2 -translate-x-1/2 z-[100] px-4 md:px-6 py-3 md:py-4 rounded-2xl font-bold shadow-2xl flex items-center gap-2 md:gap-3 whitespace-nowrap border ${
               toast.type === 'success' 
                 ? 'bg-green-500/90 text-white border-green-400' 
                 : 'bg-red-500/90 text-white border-red-400'
@@ -222,34 +222,34 @@ export default function SettingsPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-red-100"
+              className="relative bg-slate-900 border border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl"
             >
               <button 
                 onClick={() => setShowConfirmModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 rounded-full p-2"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white bg-white/5 rounded-full p-2"
               >
                 <X className="w-5 h-5" />
               </button>
               
-              <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6 mx-auto">
+              <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-6 mx-auto border border-red-500/20">
                 <AlertTriangle className="w-8 h-8" />
               </div>
               
-              <h3 className="text-2xl font-black text-center text-gray-800 mb-4">PERINGATAN KRITIS</h3>
-              <p className="text-gray-600 text-center mb-8">
+              <h3 className="text-2xl font-black text-center text-white mb-4 uppercase tracking-tighter">PERINGATAN KRITIS</h3>
+              <p className="text-slate-400 text-center mb-8">
                 Semua progres belajar, XP, level, dan nyawa akan <strong className="text-red-500">dihapus permanen</strong>. Tindakan ini tidak bisa dibatalkan. Apakah Anda yakin?
               </p>
               
               <div className="flex flex-col sm:flex-row gap-3">
                 <button 
                   onClick={() => setShowConfirmModal(false)}
-                  className="flex-1 py-4 px-6 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+                  className="flex-1 py-4 px-6 rounded-xl font-bold text-slate-400 bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest text-xs"
                 >
                   Batal
                 </button>
                 <button 
                   onClick={confirmResetData}
-                  className="flex-1 py-4 px-6 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30"
+                  className="flex-1 py-4 px-6 rounded-xl font-bold text-white bg-red-600 hover:bg-red-500 transition-colors shadow-lg shadow-red-500/30 uppercase tracking-widest text-xs"
                 >
                   Ya, Hapus Semua
                 </button>
@@ -260,84 +260,84 @@ export default function SettingsPage() {
       </AnimatePresence>
       
       <main className="max-w-2xl mx-auto px-4 py-8">
-        <header className="mb-8">
-          <Link href="/profile" className="inline-flex items-center gap-2 text-gray-500 hover:text-indigo-600 mb-6 font-medium transition-colors">
-            <ArrowLeft className="w-5 h-5" /> Kembali ke Profil
+        <header className="mb-6 md:mb-8">
+          <Link href="/profile" className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-400 mb-4 md:mb-6 font-medium transition-colors text-sm md:text-base">
+            <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" /> Kembali ke Profil
           </Link>
-          <h1 className="text-3xl font-bold text-gray-800">Pengaturan Profil ⚙️</h1>
-          <p className="text-gray-500">Sesuaikan identitas dan tingkat belajarmu.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white uppercase tracking-tighter">Pengaturan Profil ⚙️</h1>
+          <p className="text-sm md:text-base text-slate-500">Sesuaikan identitas dan tingkat belajarmu.</p>
         </header>
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100"
+          className="bg-slate-900/40 backdrop-blur-xl rounded-3xl md:rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-white/5"
         >
           <form onSubmit={handleSave} className="space-y-6">
             {/* Image Upload */}
             <div className="flex flex-col items-center gap-4 mb-8">
               <div className="relative group">
-                <div className="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
+                <div className="w-32 h-32 bg-slate-800 rounded-full flex items-center justify-center overflow-hidden border-4 border-slate-900 shadow-xl">
                   {formData.image ? (
                     <img src={formData.image} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-16 h-16 text-indigo-400" />
+                    <User className="w-16 h-16 text-slate-600" />
                   )}
                 </div>
-                <label className="absolute bottom-0 right-0 p-2 bg-indigo-600 text-white rounded-full cursor-pointer shadow-md hover:bg-indigo-700 transition-all">
+                <label className="absolute bottom-0 right-0 p-2.5 bg-indigo-600 text-white rounded-full cursor-pointer shadow-lg hover:bg-indigo-500 transition-all border-2 border-slate-900">
                   <Camera className="w-4 h-4" />
                   <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
                 </label>
               </div>
-              <p className="text-xs text-gray-400 flex items-center justify-center gap-1">
-                <Pencil className="w-3 h-3" /> Klik ikon kamera untuk mengubah foto (Maks 1MB)
+              <p className="text-[10px] text-slate-500 flex items-center justify-center gap-1 uppercase tracking-widest font-black">
+                <Pencil className="w-3 h-3" /> Ganti Foto Profil (Maks 1MB)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-xs font-black text-slate-500 mb-2 flex items-center gap-2 uppercase tracking-widest">
                 <User className="w-4 h-4 text-indigo-500" /> Nama Tampilan
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+                className="w-full bg-slate-950/50 text-white px-4 py-3.5 rounded-xl border border-white/10 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium"
                 placeholder="Masukkan namamu"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-xs font-black text-slate-500 mb-2 flex items-center gap-2 uppercase tracking-widest">
                 <GraduationCap className="w-4 h-4 text-indigo-500" /> Tingkat Sekolah
               </label>
               <select
                 value={formData.grade}
                 onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all bg-white"
+                className="w-full bg-slate-950/50 text-white px-4 py-3.5 rounded-xl border border-white/10 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium appearance-none"
               >
-                <option value="SD">Sekolah Dasar (SD)</option>
-                <option value="SMP">Sekolah Menengah Pertama (SMP)</option>
-                <option value="SMA">Sekolah Menengah Atas (SMA)</option>
+                <option value="SD" className="bg-slate-900">Sekolah Dasar (SD)</option>
+                <option value="SMP" className="bg-slate-900">Sekolah Menengah Pertama (SMP)</option>
+                <option value="SMA" className="bg-slate-900">Sekolah Menengah Atas (SMA)</option>
               </select>
-              <p className="text-xs text-gray-400 mt-2 italic">Materi belajar akan disesuaikan dengan tingkat yang kamu pilih.</p>
+              <p className="text-[10px] text-slate-500 mt-2 italic font-medium">Materi belajar akan disesuaikan dengan tingkat yang kamu pilih.</p>
             </div>
 
-            <div className="pt-4 border-t border-gray-50">
-              <label className="block text-sm font-bold text-gray-400 mb-2">Email (Terkunci)</label>
+            <div className="pt-4 border-t border-white/5">
+              <label className="block text-[10px] font-black text-slate-600 mb-2 uppercase tracking-widest">Email (Terkunci)</label>
               <input
                 type="text"
                 value={formData.email}
                 disabled
-                className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed"
+                className="w-full px-4 py-3 rounded-xl border border-white/5 bg-slate-950/30 text-slate-600 cursor-not-allowed font-medium"
               />
             </div>
 
             <button
               type="submit"
               disabled={saving}
-              className="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-indigo-500/20 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 uppercase tracking-widest text-xs"
             >
               {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
               {saving ? 'MENYIMPAN...' : 'SIMPAN PERUBAHAN'}
@@ -347,7 +347,7 @@ export default function SettingsPage() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center justify-center gap-2 text-green-600 font-bold bg-green-50 py-3 rounded-xl border border-green-100 mt-4"
+                className="flex items-center justify-center gap-2 text-emerald-400 font-bold bg-emerald-500/10 py-3 rounded-xl border border-emerald-500/20 mt-4 text-xs uppercase tracking-widest"
               >
                 <CheckCircle2 className="w-5 h-5" /> Pengaturan berhasil disimpan!
               </motion.div>
@@ -361,15 +361,15 @@ export default function SettingsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mt-12 bg-red-50 rounded-[2.5rem] p-8 border-2 border-red-100"
+            className="mt-8 md:mt-12 bg-red-500/5 rounded-3xl md:rounded-[2.5rem] p-6 md:p-8 border border-red-500/20"
           >
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-red-100 rounded-2xl text-red-600">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-red-800">Zona Bahaya (Dev Mode)</h3>
-                <p className="text-red-600/60 text-sm">Tindakan permanen untuk memudahkan testing.</p>
+                <h3 className="text-xl font-bold text-red-500 uppercase tracking-tighter">Zona Bahaya (Dev Mode)</h3>
+                <p className="text-red-400 opacity-60 text-xs font-bold uppercase tracking-widest">Tindakan permanen untuk memudahkan testing.</p>
               </div>
             </div>
 
@@ -378,17 +378,17 @@ export default function SettingsPage() {
                 type="button"
                 onClick={handleResetHearts}
                 disabled={saving}
-                className="w-full bg-white text-green-600 border-2 border-green-200 font-black py-4 rounded-2xl shadow-sm hover:bg-green-600 hover:text-white hover:border-green-600 transition-all flex items-center justify-center gap-2"
+                className="w-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-black py-4 rounded-2xl shadow-sm hover:bg-emerald-500 hover:text-slate-950 hover:border-emerald-500 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
               >
                 <CheckCircle2 className="w-5 h-5" />
                 ISI ULANG NYAWA PENUH (5/5)
               </button>
-
+ 
               <button
                 type="button"
                 onClick={handleResetDataClick}
                 disabled={saving}
-                className="w-full bg-white text-red-600 border-2 border-red-200 font-black py-4 rounded-2xl shadow-sm hover:bg-red-600 hover:text-white hover:border-red-600 transition-all flex items-center justify-center gap-2"
+                className="w-full bg-red-500/10 text-red-500 border border-red-500/20 font-black py-4 rounded-2xl shadow-sm hover:bg-red-500 hover:text-white hover:border-red-500 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
               >
                 <Trash2 className="w-5 h-5" />
                 RESET SEMUA DATA PROGRES

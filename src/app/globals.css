@@ -31,8 +31,9 @@ body {
     text-wrap: balance;
   }
   
-  .animate-spin-slow {
-    animation: spin 8s linear infinite;
+  .animate-gradient-flow {
+    background-size: 200% auto;
+    animation: gradient-flow 5s linear infinite;
   }
   
   .shake {
@@ -45,9 +46,10 @@ body {
     75% { transform: translateX(10px); }
   }
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  @keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 }
 

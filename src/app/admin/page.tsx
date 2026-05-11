@@ -275,95 +275,111 @@ export default function SuperAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-200 pb-20">
+    <div className="min-h-screen bg-[#0f172a] text-slate-200 pb-24 md:pb-10">
       <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-xl">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center border border-indigo-500/50">
-              <ShieldCheck className="w-6 h-6 text-indigo-400" />
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center border border-indigo-500/50">
+              <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 text-indigo-400" />
             </div>
-            <div>
-              <h1 className="text-xl font-black text-white leading-tight">Super Admin</h1>
-              <p className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase">Pusat Komando MathQuest</p>
+            <div className="hidden sm:block">
+              <h1 className="text-lg md:text-xl font-black text-white leading-tight">Super Admin</h1>
+              <p className="text-[9px] md:text-[10px] text-indigo-400 font-bold tracking-widest uppercase">MathQuest Command</p>
+            </div>
+            <div className="sm:hidden">
+               <h1 className="text-sm font-black text-white uppercase tracking-tighter">SA Panel</h1>
             </div>
           </div>
-          <div className="flex items-center gap-6">
+          
+          <div className="flex items-center gap-2 md:gap-6">
             <nav className="hidden md:flex bg-slate-950 p-1 rounded-xl border border-slate-800">
               <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${activeTab === 'users' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}>User Database</button>
               <button onClick={() => setActiveTab('content')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${activeTab === 'content' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}>AI Content Manager</button>
             </nav>
-            <button onClick={handleLogout} className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-red-400 transition-colors bg-slate-800 px-4 py-2 rounded-full"><LogOut className="w-4 h-4" /> Keluar</button>
+            <button onClick={handleLogout} className="flex items-center gap-2 text-[10px] md:text-sm font-bold text-slate-400 hover:text-red-400 transition-colors bg-slate-800 px-3 md:px-4 py-2 rounded-full">
+              <LogOut className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden xs:inline">Keluar</span>
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 pt-10">
+      {/* Mobile Tab Navigation (Compact Sticky Bottom) */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto min-w-[200px]">
+        <nav className="bg-slate-900/90 backdrop-blur-3xl p-1.5 rounded-full border border-white/10 shadow-2xl flex items-center gap-1">
+          <button onClick={() => setActiveTab('users')} className={`flex-1 flex items-center gap-2 px-6 py-2.5 rounded-full transition-all ${activeTab === 'users' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500'}`}>
+            <Users className="w-4 h-4" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Users</span>
+          </button>
+          <button onClick={() => setActiveTab('content')} className={`flex-1 flex items-center gap-2 px-6 py-2.5 rounded-full transition-all ${activeTab === 'content' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500'}`}>
+            <Wand2 className="w-4 h-4" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Content</span>
+          </button>
+        </nav>
+      </div>
+
+      <main className="max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-10">
         {bulkStatus && (
           <motion.div initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-6 bg-indigo-600 p-4 rounded-2xl flex items-center gap-4 text-white font-bold shadow-[0_0_20px_rgba(79,70,229,0.5)]">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span>{bulkStatus}</span>
+            <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+            <span className="text-xs md:text-sm">{bulkStatus}</span>
           </motion.div>
         )}
 
         {activeTab === 'users' ? (
           <>
             {stats && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                <div className="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700 relative overflow-hidden group hover:border-slate-500 transition-colors">
-                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
+                <div className="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700 relative overflow-hidden group">
                   <Users className="w-8 h-8 text-blue-400 mb-4" />
-                  <h2 className="text-4xl font-black text-white mb-1">{stats.totalUsers}</h2>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Total Pendaftar</p>
+                  <h2 className="text-3xl md:text-4xl font-black text-white mb-1">{stats.totalUsers}</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total Pendaftar</p>
                 </div>
-                <div className="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700 relative overflow-hidden group hover:border-slate-500 transition-colors">
-                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-yellow-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+                <div className="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700 relative overflow-hidden group">
                   <Zap className="w-8 h-8 text-yellow-400 mb-4" />
-                  <h2 className="text-4xl font-black text-white mb-1">{stats.totalXpAll.toLocaleString()}</h2>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Total EXP Beredar</p>
+                  <h2 className="text-3xl md:text-4xl font-black text-white mb-1">{stats.totalXpAll.toLocaleString()}</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total EXP Beredar</p>
                 </div>
-                <div className="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700 relative overflow-hidden group hover:border-slate-500 transition-colors">
-                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+                <div className="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700 relative overflow-hidden group">
                   <Star className="w-8 h-8 text-cyan-400 mb-4" />
-                  <h2 className="text-4xl font-black text-white mb-1">{stats.totalPointsAll.toLocaleString()}</h2>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Game Points Beredar</p>
+                  <h2 className="text-3xl md:text-4xl font-black text-white mb-1">{stats.totalPointsAll.toLocaleString()}</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Game Points Beredar</p>
                 </div>
-                <div className="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700 relative overflow-hidden group hover:border-slate-500 transition-colors">
-                  <h3 className="text-sm font-black text-white mb-4 uppercase tracking-widest">Distribusi Tingkat</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-sm font-bold"> <span className="text-slate-400">Sekolah Dasar (SD)</span> <span className="text-white bg-slate-700 px-2 py-0.5 rounded-md">{stats.gradeDistribution.SD}</span> </div>
-                    <div className="flex justify-between items-center text-sm font-bold"> <span className="text-slate-400">Sekolah Menengah (SMP)</span> <span className="text-white bg-slate-700 px-2 py-0.5 rounded-md">{stats.gradeDistribution.SMP}</span> </div>
-                    <div className="flex justify-between items-center text-sm font-bold"> <span className="text-slate-400">Sekolah Atas (SMA)</span> <span className="text-white bg-slate-700 px-2 py-0.5 rounded-md">{stats.gradeDistribution.SMA}</span> </div>
+                <div className="bg-slate-800/50 p-6 rounded-[2rem] border border-slate-700">
+                  <h3 className="text-[10px] font-black text-white mb-4 uppercase tracking-widest">Distribusi Tingkat</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-xs font-bold"> <span className="text-slate-500">SD</span> <span className="text-white">{stats.gradeDistribution.SD}</span> </div>
+                    <div className="flex justify-between items-center text-xs font-bold"> <span className="text-slate-500">SMP</span> <span className="text-white">{stats.gradeDistribution.SMP}</span> </div>
+                    <div className="flex justify-between items-center text-xs font-bold"> <span className="text-slate-500">SMA</span> <span className="text-white">{stats.gradeDistribution.SMA}</span> </div>
                   </div>
                 </div>
               </div>
             )}
             <div className="bg-slate-900 rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <h3 className="text-xl font-black text-white">Database Pengguna</h3>
-                <div className="bg-slate-950 px-4 py-2 rounded-xl text-xs font-bold text-slate-500 uppercase tracking-widest">Menampilkan {users.length} Data Terbaru</div>
+              <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+                <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tight">Database</h3>
+                <div className="bg-slate-950 px-3 py-1 rounded-lg text-[9px] font-bold text-slate-500 uppercase tracking-widest">{users.length} Records</div>
               </div>
-              <div className="overflow-x-auto overflow-y-auto max-h-[600px]">
+              <div className="overflow-x-auto relative">
+                {/* Scroll Indicator for Mobile */}
+                <div className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 animate-pulse pointer-events-none">
+                   <ChevronLeft className="w-4 h-4 text-slate-600 rotate-180" />
+                </div>
                 <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead className="bg-slate-950/50 text-slate-400 font-bold uppercase tracking-wider text-xs sticky top-0 z-10">
-                    <tr><th className="px-6 py-4">Nama User</th><th className="px-6 py-4">Tingkat</th><th className="px-6 py-4">Level</th><th className="px-6 py-4">EXP</th><th className="px-6 py-4">Game Points</th><th className="px-6 py-4">Waktu Bergabung</th><th className="px-6 py-4">Aksi</th></tr>
+                  <thead className="bg-slate-950/50 text-slate-500 font-bold uppercase tracking-wider text-[10px] sticky top-0 z-10">
+                    <tr><th className="px-6 py-4">Siswa</th><th className="px-6 py-4">Tingkat</th><th className="px-6 py-4">Level</th><th className="px-6 py-4">EXP</th><th className="px-6 py-4">Waktu</th><th className="px-6 py-4">Aksi</th></tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/50">
                     {users.map((user) => (
                       <tr key={user.id} className="hover:bg-slate-800/30 transition-colors">
-                        <td className="px-6 py-4"> <div className="flex flex-col"> <span className="font-bold text-white">{user.name || 'Pemain Anonim'}</span> <span className="text-xs text-slate-500">{user.email}</span> </div> </td>
-                        <td className="px-6 py-4"> <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-md font-bold text-xs">{user.grade}</span> </td>
-                        <td className="px-6 py-4"> <div className="flex items-center gap-1.5 font-bold text-white"> <div className="w-5 h-5 bg-slate-700 rounded-full flex items-center justify-center text-[10px]">{user.level}</div> </div> </td>
-                        <td className="px-6 py-4 font-mono text-yellow-400 font-bold">{user.totalXp.toLocaleString()}</td>
-                        <td className="px-6 py-4 font-mono text-cyan-400 font-bold">{user.gamePoints.toLocaleString()}</td>
-                        <td className="px-6 py-4 text-xs text-slate-400 font-medium">{formatDate(user.createdAt)}</td>
+                        <td className="px-6 py-4"> <div className="flex flex-col"> <span className="font-bold text-white text-xs">{user.name || 'Anonim'}</span> <span className="text-[10px] text-slate-500">{user.email}</span> </div> </td>
+                        <td className="px-6 py-4"> <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded text-[10px] font-black uppercase">{user.grade}</span> </td>
+                        <td className="px-6 py-4"> <div className="w-6 h-6 bg-slate-800 rounded-lg flex items-center justify-center text-[10px] font-black text-white">{user.level}</div> </td>
+                        <td className="px-6 py-4 font-mono text-yellow-400 font-bold text-xs">{user.totalXp.toLocaleString()}</td>
+                        <td className="px-6 py-4 text-[10px] text-slate-500 font-medium">{formatDate(user.createdAt)}</td>
                         <td className="px-6 py-4">
                            <div className="flex items-center gap-2">
-                              <button onClick={() => setEditingUser(user)} className="p-2 bg-slate-800 hover:bg-indigo-600 rounded-xl transition-all text-slate-400 hover:text-white" title="Edit User">
-                                 <Settings className="w-4 h-4" />
-                              </button>
-                              <button onClick={() => handleDeleteUser(user.id)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-xl transition-all text-slate-400 hover:text-white" title="Hapus User">
-                                 <Trash2 className="w-4 h-4" />
-                              </button>
+                              <button onClick={() => setEditingUser(user)} className="p-2 bg-slate-800 hover:bg-indigo-600 rounded-xl transition-all text-slate-400 hover:text-white"><Settings className="w-4 h-4" /></button>
+                              <button onClick={() => handleDeleteUser(user.id)} className="p-2 bg-slate-800 hover:bg-red-600 rounded-xl transition-all text-slate-400 hover:text-white"><Trash2 className="w-4 h-4" /></button>
                            </div>
                         </td>
                       </tr>
@@ -375,15 +391,15 @@ export default function SuperAdminPage() {
           </>
         ) : (
           <div className="space-y-8">
-            <div className="bg-slate-900 rounded-[2rem] border border-slate-800 p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group">
+            <div className="bg-slate-900 rounded-[2.5rem] border border-slate-800 p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group">
               <div className="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-              <div className="relative z-10">
-                <h2 className="text-3xl font-black text-white mb-2">AI Content Management</h2>
-                <p className="text-slate-400 max-w-xl">Gunakan panel ini untuk men-generate materi & soal. Data yang tersimpan akan langsung digunakan siswa tanpa memicu API Gemini berulang-ulang.</p>
+              <div className="relative z-10 text-center md:text-left">
+                <h2 className="text-2xl md:text-3xl font-black text-white mb-2 uppercase tracking-tight">AI Content Manager</h2>
+                <p className="text-slate-400 text-xs md:text-sm max-w-xl font-medium">Generate mass content using Gemini AI technology.</p>
               </div>
-              <div className="flex flex-col md:flex-row gap-3 relative z-10">
-                <button onClick={handleGenerateAll} disabled={isLoading} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl font-black shadow-lg transition-all active:scale-95 disabled:opacity-50"><Wand2 className="w-5 h-5" /> GENERATE ALL</button>
-                <button onClick={() => fetchContentStatus(passcode)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-2xl font-bold transition-all active:scale-95"><RefreshCcw className={`w-5 h-5 ${contentLoading ? 'animate-spin' : ''}`} /> Refresh</button>
+              <div className="flex flex-col sm:flex-row gap-3 relative z-10 w-full md:w-auto">
+                <button onClick={handleGenerateAll} disabled={isLoading} className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3.5 rounded-2xl font-black shadow-lg transition-all active:scale-95 text-xs"><Wand2 className="w-4 h-4" /> SYNC ALL</button>
+                <button onClick={() => fetchContentStatus(passcode)} className="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-6 py-3.5 rounded-2xl font-bold transition-all active:scale-95 text-xs"><RefreshCcw className={`w-4 h-4 ${contentLoading ? 'animate-spin' : ''}`} /> Refresh</button>
               </div>
             </div>
 
@@ -443,13 +459,13 @@ export default function SuperAdminPage() {
       {/* Toast Notification */}
       <AnimatePresence>
         {notification && (
-          <motion.div initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }} className="fixed bottom-10 right-10 z-[100] flex items-center gap-4 p-5 rounded-[2rem] border backdrop-blur-2xl shadow-2xl min-w-[300px]" style={{ backgroundColor: notification.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', borderColor: notification.type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner ${notification.type === 'success' ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-red-500/20 border-red-500/30'}`}>
-              {notification.type === 'success' ? <CheckCircle2 className="w-6 h-6 text-emerald-400" /> : <X className="w-6 h-6 text-red-400" />}
+          <motion.div initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }} className="fixed bottom-24 md:bottom-10 left-4 right-4 md:left-auto md:right-10 z-[100] flex items-center gap-4 p-4 md:p-5 rounded-[2rem] border backdrop-blur-2xl shadow-2xl md:min-w-[300px]" style={{ backgroundColor: notification.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', borderColor: notification.type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
+            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center border shadow-inner ${notification.type === 'success' ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-red-500/20 border-red-500/30'}`}>
+              {notification.type === 'success' ? <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" /> : <X className="w-5 h-5 md:w-6 md:h-6 text-red-400" />}
             </div>
             <div className="flex-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-0.5">{notification.type === 'success' ? 'Success' : 'Attention'}</p>
-              <p className="text-sm font-bold text-white">{notification.message}</p>
+              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 mb-0.5">{notification.type === 'success' ? 'Success' : 'Attention'}</p>
+              <p className="text-xs md:text-sm font-bold text-white">{notification.message}</p>
             </div>
           </motion.div>
         )}
@@ -460,70 +476,70 @@ export default function SuperAdminPage() {
         {confirmDialog && (
           <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmDialog(null)} className="absolute inset-0 bg-slate-950/90 backdrop-blur-md" />
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="bg-slate-900 border border-slate-800 p-10 rounded-[3rem] w-full max-w-md relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center">
-              <div className="w-20 h-20 bg-amber-500/10 rounded-[2rem] mx-auto mb-6 flex items-center justify-center border border-amber-500/20">
-                 <Trash2 className="w-10 h-10 text-amber-400" />
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="bg-slate-900 border border-slate-800 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] w-full max-w-md relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-amber-500/10 rounded-[1.5rem] md:rounded-[2rem] mx-auto mb-6 flex items-center justify-center border border-amber-500/20">
+                 <Trash2 className="w-8 h-8 md:w-10 md:h-10 text-amber-400" />
               </div>
-              <h3 className="text-2xl font-black text-white mb-4 leading-tight">Apakah Anda Yakin?</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-10 font-medium">{confirmDialog.message}</p>
-              <div className="flex gap-4">
-                <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-5 rounded-[1.5rem] font-black transition-all active:scale-95">BATAL</button>
-                <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-600 hover:bg-red-500 text-white py-5 rounded-[1.5rem] font-black shadow-lg shadow-red-600/20 transition-all active:scale-95">IYA, HAPUS</button>
+              <h3 className="text-xl md:text-2xl font-black text-white mb-3 md:mb-4 leading-tight">Apakah Anda Yakin?</h3>
+              <p className="text-slate-400 text-xs md:text-sm leading-relaxed mb-8 md:mb-10 font-medium">{confirmDialog.message}</p>
+              <div className="flex gap-3 md:gap-4">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-4 md:py-5 rounded-[1.2rem] md:rounded-[1.5rem] font-black transition-all active:scale-95 text-xs">BATAL</button>
+                <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-600 hover:bg-red-500 text-white py-4 md:py-5 rounded-[1.2rem] md:rounded-[1.5rem] font-black shadow-lg shadow-red-600/20 transition-all active:scale-95 text-xs uppercase">IYA, HAPUS</button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* User Editor Modal (Enhanced) */}
+      {/* User Editor Modal (Enhanced & Responsive Scroll) */}
       <AnimatePresence>
         {editingUser && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingUser(null)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" />
-            <motion.div initial={{ scale: 0.95, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 30 }} className="bg-slate-900 border border-white/5 p-10 rounded-[3rem] w-full max-w-xl relative z-10 shadow-2xl">
-              <div className="flex items-center justify-between mb-10">
-                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
-                       <Settings className="w-6 h-6 text-indigo-400" />
+            <motion.div initial={{ scale: 0.95, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 30 }} className="bg-slate-900 border border-white/5 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] w-full max-w-xl max-h-[90vh] overflow-y-auto relative z-10 shadow-2xl custom-scrollbar">
+              <div className="flex items-center justify-between mb-8 md:mb-10 sticky top-0 bg-slate-900 z-20 pb-4">
+                 <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
+                       <Settings className="w-5 h-5 md:w-6 md:h-6 text-indigo-400" />
                     </div>
                     <div>
-                       <h2 className="text-2xl font-black text-white uppercase tracking-tight">Student Profile</h2>
-                       <p className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase">Database Update</p>
+                       <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Edit Siswa</h2>
+                       <p className="text-[8px] md:text-[10px] text-indigo-400 font-bold tracking-widest uppercase">Database Update</p>
                     </div>
                  </div>
-                 <button onClick={() => setEditingUser(null)} className="p-3 hover:bg-slate-800 rounded-2xl text-slate-500 hover:text-white transition-all"><X className="w-6 h-6" /></button>
+                 <button onClick={() => setEditingUser(null)} className="p-2 md:p-3 hover:bg-slate-800 rounded-2xl text-slate-500 hover:text-white transition-all"><X className="w-5 h-5 md:w-6 md:h-6" /></button>
               </div>
               <form onSubmit={handleUpdateUser} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
-                    <input value={editingUser.name || ''} onChange={(e) => setEditingUser({...editingUser, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-4 ring-indigo-500/10 transition-all font-bold" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                  <div className="sm:col-span-2 space-y-2">
+                    <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                    <input value={editingUser.name || ''} onChange={(e) => setEditingUser({...editingUser, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-3.5 md:p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold text-sm" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Academic Grade</label>
-                    <select value={editingUser.grade} onChange={(e) => setEditingUser({...editingUser, grade: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold appearance-none">
-                      <option value="SD">Sekolah Dasar (SD)</option>
-                      <option value="SMP">Menengah Pertama (SMP)</option>
-                      <option value="SMA">Menengah Atas (SMA)</option>
+                    <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Tingkat Sekolah</label>
+                    <select value={editingUser.grade} onChange={(e) => setEditingUser({...editingUser, grade: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-3.5 md:p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold text-sm appearance-none">
+                      <option value="SD">SD</option>
+                      <option value="SMP">SMP</option>
+                      <option value="SMA">SMA</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Student Level</label>
-                    <input type="number" value={editingUser.level} onChange={(e) => setEditingUser({...editingUser, level: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold" />
+                    <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Level Siswa</label>
+                    <input type="number" value={editingUser.level} onChange={(e) => setEditingUser({...editingUser, level: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-3.5 md:p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold text-sm" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Experience (XP)</label>
-                    <input type="number" value={editingUser.totalXp} onChange={(e) => setEditingUser({...editingUser, totalXp: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold text-yellow-400" />
+                    <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Experience (XP)</label>
+                    <input type="number" value={editingUser.totalXp} onChange={(e) => setEditingUser({...editingUser, totalXp: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-3.5 md:p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold text-sm text-yellow-400" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Game Points</label>
-                    <input type="number" value={editingUser.gamePoints} onChange={(e) => setEditingUser({...editingUser, gamePoints: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold text-cyan-400" />
+                    <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Poin Game</label>
+                    <input type="number" value={editingUser.gamePoints} onChange={(e) => setEditingUser({...editingUser, gamePoints: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-[1.2rem] p-3.5 md:p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono font-bold text-sm text-cyan-400" />
                   </div>
                 </div>
-                <div className="pt-6 flex gap-4">
-                  <button type="button" onClick={() => setEditingUser(null)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-5 rounded-[1.5rem] font-black transition-all active:scale-95 uppercase tracking-wider text-xs">Close</button>
-                  <button type="submit" disabled={saveLoading} className="flex-2 bg-indigo-600 hover:bg-indigo-500 text-white py-5 px-10 rounded-[1.5rem] font-black flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 uppercase tracking-wider text-xs">
-                    {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save Changes
+                <div className="pt-6 flex flex-col sm:flex-row gap-3 md:gap-4">
+                  <button type="button" onClick={() => setEditingUser(null)} className="order-2 sm:order-1 flex-1 bg-slate-800 hover:bg-slate-700 text-white py-4 md:py-5 rounded-[1.2rem] md:rounded-[1.5rem] font-black transition-all active:scale-95 uppercase tracking-wider text-[10px]">Tutup</button>
+                  <button type="submit" disabled={saveLoading} className="order-1 sm:order-2 flex-2 bg-indigo-600 hover:bg-indigo-500 text-white py-4 md:py-5 px-6 md:px-10 rounded-[1.2rem] md:rounded-[1.5rem] font-black flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 uppercase tracking-wider text-[10px]">
+                    {saveLoading ? <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" /> : <Save className="w-4 h-4 md:w-5 md:h-5" />} Simpan Perubahan
                   </button>
                 </div>
               </form>

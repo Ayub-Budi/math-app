@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, Reorder, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, RefreshCcw, Star, Timer, Play, Trophy, Heart, XCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, RefreshCcw, Star, Timer, Play, Trophy, Heart, XCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useGameProgress } from '@/components/useGameProgress';
 
@@ -67,145 +67,148 @@ export default function SortGamePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white font-black">
-        <RefreshCcw className="w-16 h-16 animate-spin mb-4 text-blue-500" />
-        <p className="text-xl tracking-widest uppercase">Menyusun Angka...</p>
-      </div>
-    );
-  }
-
-  if (hearts <= 0) {
-    return (
-      <div className="min-h-screen bg-slate-900 text-white p-6 flex flex-col items-center justify-center text-center">
-        <XCircle className="w-24 h-24 text-red-500 mb-6" />
-        <h1 className="text-5xl font-black mb-4 uppercase tracking-tighter text-blue-400">Penyusun Lelah</h1>
-        <p className="text-slate-400 text-xl mb-10 max-w-sm">Kamu kehabisan nyawa harian. Istirahatlah sejenak dan kembali besok dengan konsentrasi penuh!</p>
-        <Link href="/games" className="bg-blue-600 text-white px-12 py-4 rounded-2xl font-black text-xl transition-all hover:scale-105">
-          KEMBALI KE MENU
-        </Link>
-        {process.env.NODE_ENV === 'development' && (
-          <button 
-            onClick={handleGlobalReset}
-            className="mt-8 text-blue-400 hover:text-white text-sm font-bold underline transition-colors"
-          >
-            Hapus Semua Progres & Isi Ulang Nyawa (Dev Mode)
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  if (isGameFinished) {
-    return (
-      <div className="min-h-screen bg-slate-900 text-white p-6 flex flex-col items-center justify-center text-center">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex flex-col items-center">
-          <Trophy className="w-24 h-24 text-blue-500 mb-6 animate-bounce" />
-          <h1 className="text-5xl font-black mb-4 uppercase tracking-tighter text-blue-400">TERURUT SEMPURNA! 📊</h1>
-          <p className="text-slate-400 text-xl mb-10 max-w-md">Luar biasa! Kamu telah menguasai seni pengurutan angka hingga level {MAX_LEVEL}. Kamu adalah pakar logika!</p>
-          <div className="flex flex-col gap-4">
-            <Link href="/games" className="bg-blue-600 text-white px-12 py-4 rounded-2xl font-black text-xl transition-all hover:scale-105">
-              KEMBALI KE MENU
-            </Link>
-            <button 
-              onClick={resetThisGame}
-              className="text-blue-400 hover:text-white text-sm font-bold underline transition-colors"
-            >
-              Mulai Ulang dari Level 1
-            </button>
-          </div>
-        </motion.div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#020617] text-white">
+        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+        <p className="text-xs font-black tracking-[0.4em] uppercase opacity-50">Mengatur Angka...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6 flex flex-col items-center">
-      <header className="w-full max-w-4xl flex items-center justify-between mb-12">
-        <Link href="/games" className="flex items-center gap-2 text-blue-300 hover:text-white font-bold bg-blue-900/50 px-4 py-2 rounded-full">
-          <ArrowLeft className="w-5 h-5" /> Kembali
+    <div className="min-h-screen bg-[#020617] text-slate-200 flex flex-col items-center overflow-hidden selection:bg-indigo-500/30">
+      {/* Background Decor */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_20%,rgba(79,70,229,0.05)_0%,transparent_50%)]" />
+      </div>
+
+      <header className="w-full max-w-5xl flex items-center justify-between p-4 md:p-8 z-[60]">
+        <Link href="/games" className="p-3 bg-slate-900/50 border border-white/5 rounded-2xl hover:bg-slate-800 transition-all group">
+          <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:text-white transition-colors" />
         </Link>
-        <div className="flex items-center gap-4">
-          <div className="bg-red-500/20 text-red-400 px-4 py-2 rounded-full font-black shadow-lg border border-red-500/30 flex items-center gap-2">
-            <Heart className="w-5 h-5 fill-current" />
-            {hearts}
-          </div>
-          <div className="bg-blue-900/80 px-6 py-2 rounded-full font-black text-blue-300 shadow-lg border border-blue-700">
-            LEVEL {currentLevel}
-          </div>
-          <div className="bg-yellow-400 text-blue-900 px-6 py-2 rounded-full font-black shadow-lg">
-            POIN: {gamePoints}
-          </div>
-        </div>
-        <div className="bg-blue-500 text-white px-6 py-2 rounded-full font-black shadow-lg flex items-center gap-2">
-          <Timer className="w-5 h-5" /> {timer}s
+        
+        <div className="flex gap-2 md:gap-4 items-center">
+           <div className="bg-slate-900/50 border border-white/5 px-4 py-2 rounded-xl flex items-center gap-2">
+             <Heart className="w-4 h-4 text-red-500 fill-current" />
+             <span className="font-black text-sm">{hearts}</span>
+           </div>
+           <div className="hidden sm:flex bg-slate-900/50 border border-white/5 px-4 py-2 rounded-xl items-center gap-2">
+             <Star className="w-4 h-4 text-yellow-500 fill-current" />
+             <span className="font-black text-sm">{gamePoints}</span>
+           </div>
+           <div className="bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl text-indigo-400 font-black text-[10px] uppercase tracking-widest">
+             Level {currentLevel}
+           </div>
+           <div className="bg-slate-950 px-4 py-2 rounded-xl border border-white/5 flex items-center gap-2">
+             <Timer className="w-4 h-4 text-slate-500" />
+             <span className="font-black text-sm">{timer}s</span>
+           </div>
         </div>
       </header>
 
-      <main className="w-full max-w-2xl">
-        {!isPlaying && !isFinished ? (
-          <div className="text-center py-20 bg-white/5 rounded-[3rem] border border-white/10">
-            <h2 className="text-4xl font-bold mb-6">Siap Mengurutkan?</h2>
-            <p className="text-slate-400 mb-10">Susun angka dari yang terkecil ke terbesar secepat mungkin!</p>
+      <main className="w-full max-w-2xl flex-1 flex flex-col items-center justify-center p-4 md:p-8 z-10 space-y-8 md:space-y-12">
+        
+        <AnimatePresence>
+          {hearts <= 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 flex items-center justify-center bg-[#020617]/90 z-[100] p-6 backdrop-blur-md">
+              <div className="text-center max-w-sm space-y-6">
+                <XCircle className="w-20 h-20 text-red-500 mx-auto" />
+                <h2 className="text-2xl font-black text-white uppercase tracking-tight">Energi Habis!</h2>
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest leading-relaxed">Konsentrasi menurun. Istirahatlah dan kembali besok.</p>
+                <Link href="/games" className="block w-full bg-white text-slate-950 font-black py-4 rounded-xl text-[10px] uppercase tracking-widest shadow-xl">KEMBALI KE MENU</Link>
+              </div>
+            </motion.div>
+          )}
+
+          {isGameFinished && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 flex items-center justify-center bg-[#020617]/95 z-[100] p-6 backdrop-blur-md">
+              <div className="text-center max-w-sm space-y-6">
+                <Trophy className="w-20 h-20 text-yellow-400 mx-auto animate-bounce" />
+                <h2 className="text-2xl font-black text-white uppercase tracking-tight">Pakar Logika!</h2>
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest leading-relaxed">Kamu telah menguasai seni pengurutan ({MAX_LEVEL}).</p>
+                <div className="space-y-3">
+                  <Link href="/games" className="block w-full bg-white text-slate-950 font-black py-4 rounded-xl text-[10px] uppercase tracking-widest shadow-xl">KEMBALI KE MENU</Link>
+                  <button onClick={resetThisGame} className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest underline">Mulai Lagi Level 1</button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {!isPlaying && !isFinished && !isGameFinished ? (
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center p-8 md:p-12 bg-slate-900/30 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] shadow-2xl space-y-8">
+            <div className="space-y-4">
+              <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight">Siap Mengurutkan?</h2>
+              <p className="text-slate-500 text-xs md:text-sm font-bold uppercase tracking-widest leading-relaxed">Susun angka dari terkecil ke terbesar secepat mungkin!</p>
+            </div>
             <button 
               onClick={startGame}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-black px-12 py-5 rounded-2xl text-xl shadow-xl transition-all flex items-center gap-3 mx-auto"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-5 rounded-2xl text-xs uppercase tracking-widest shadow-xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
             >
-              <Play className="w-6 h-6 fill-current" /> MULAI LEVEL {currentLevel}
+              <Play className="w-4 h-4 fill-current" /> Mulai Misi {currentLevel}
             </button>
-          </div>
+          </motion.div>
         ) : (
-          <div className="flex flex-col items-center">
-            <p className="mb-8 text-blue-400 font-bold uppercase tracking-widest">Tarik angka untuk mengatur urutan:</p>
+          <div className="w-full flex flex-col items-center space-y-8 md:space-y-12">
+            <div className="text-center space-y-2">
+               <h3 className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em]">Neural Sequence</h3>
+               <p className="text-xs text-indigo-400 font-bold uppercase tracking-widest">Tarik kartu untuk mengatur urutan:</p>
+            </div>
             
-            <Reorder.Group axis="y" values={numbers} onReorder={setNumbers} className="w-full space-y-4 mb-12">
-              {numbers.map((item) => (
-                <Reorder.Item 
-                  key={item.id} 
-                  value={item}
-                  className={`bg-white text-slate-900 p-6 rounded-2xl flex items-center justify-between shadow-xl cursor-grab active:cursor-grabbing border-l-8 transition-colors
-                    ${isWrong ? 'border-red-500' : 'border-blue-500'}
-                  `}
-                >
-                  <span className="text-3xl font-black">{item.value}</span>
-                  <div className="flex gap-1">
-                    {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 bg-slate-300 rounded-full" />)}
-                  </div>
-                </Reorder.Item>
-              ))}
+            <Reorder.Group axis="y" values={numbers} onReorder={setNumbers} className="w-full space-y-3 md:space-y-4">
+              <AnimatePresence>
+                {numbers.map((item) => (
+                  <Reorder.Item 
+                    key={item.id} 
+                    value={item}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className={`bg-slate-900/50 backdrop-blur-3xl p-5 md:p-6 rounded-2xl flex items-center justify-between shadow-xl cursor-grab active:cursor-grabbing border border-white/5 border-l-8 transition-colors
+                      ${isWrong ? 'border-l-red-500 bg-red-500/5' : 'border-l-indigo-500'}
+                    `}
+                  >
+                    <span className="text-2xl md:text-3xl font-black text-white">{item.value}</span>
+                    <div className="flex flex-col gap-1.5 opacity-20 group-active:opacity-50 transition-opacity">
+                      {[1,2,3].map(i => <div key={i} className="w-1 md:w-1.5 h-1 md:h-1.5 bg-white rounded-full" />)}
+                    </div>
+                  </Reorder.Item>
+                ))}
+              </AnimatePresence>
             </Reorder.Group>
 
             <button
               onClick={handleSubmit}
-              className={`w-full py-6 rounded-2xl font-black text-2xl shadow-2xl transition-all flex items-center justify-center gap-3
-                ${isWrong ? 'bg-red-500 animate-shake' : 'bg-green-500 hover:bg-green-400'}
+              className={`w-full py-5 md:py-6 rounded-2xl font-black text-sm md:text-base text-white shadow-2xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest
+                ${isWrong ? 'bg-red-600 animate-shake' : 'bg-emerald-600 hover:bg-emerald-500'}
               `}
             >
-              <CheckCircle2 className="w-8 h-8" /> SELESAI & CEK
+              {isWrong ? <XCircle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />} 
+              {isWrong ? 'Urutan Salah!' : 'Selesai & Sinkronkan'}
             </button>
           </div>
         )}
       </main>
 
-      {renderTitleModal()}
-
+      {/* Success Overlay */}
       <AnimatePresence>
         {isFinished && (
           <motion.div 
-            initial={{ y: '100%' }} animate={{ y: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-blue-600 p-6"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#020617]/95 p-6 backdrop-blur-xl"
           >
-            <div className="text-center">
-              <Trophy className="w-32 h-32 text-white mx-auto mb-6 animate-bounce" />
-              <h2 className="text-6xl font-black mb-2 uppercase italic">Fantastis!</h2>
-              <p className="text-2xl text-blue-100 mb-12 font-medium">Kamu menyelesaikan urutan dalam {timer} detik!</p>
-              <div className="flex flex-col gap-4 max-w-xs mx-auto">
+            <div className="text-center space-y-8 max-w-sm">
+              <Trophy className="w-24 h-24 text-yellow-400 mx-auto animate-bounce" />
+              <div className="space-y-4">
+                <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight italic">Fantastis!</h2>
+                <p className="text-slate-400 text-xs md:text-sm font-bold uppercase tracking-widest">Urutan sempurna dalam {timer} detik!</p>
+              </div>
+              <div className="space-y-3">
                 <button 
                   onClick={startGame}
-                  className="bg-white text-blue-600 font-black py-5 rounded-2xl text-xl shadow-2xl hover:scale-105 transition-all"
+                  className="w-full bg-white text-indigo-950 font-black py-4 rounded-xl text-[10px] uppercase tracking-widest shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
                 >
-                  LANJUTKAN
+                  Lanjutkan Misi
                 </button>
-                <Link href="/games" className="text-blue-100 font-bold hover:underline">
+                <Link href="/games" className="block text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest underline">
                   Kembali ke Menu
                 </Link>
               </div>
@@ -213,6 +216,8 @@ export default function SortGamePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {renderTitleModal()}
     </div>
   );
 }

@@ -110,86 +110,86 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-        <p className="text-gray-500 font-bold">Menyiapkan profilmu...</p>
+      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+        <p className="text-slate-400 font-bold">Menyiapkan profilmu...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 md:pt-20">
+    <div className="min-h-screen bg-[#020617] text-slate-200 pb-28 pt-4 md:pt-24 selection:bg-indigo-500/30">
       <Navbar />
       
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Profile Header */}
-        <header className="bg-white rounded-[3rem] p-8 shadow-sm border border-gray-100 mb-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 opacity-5 rounded-full -mr-20 -mt-20" />
+        <header className="bg-slate-900/50 backdrop-blur-xl rounded-3xl md:rounded-[3rem] p-6 md:p-8 shadow-2xl border border-white/5 mb-6 md:mb-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 opacity-10 rounded-full -mr-20 -mt-20 blur-[80px]" />
           
-          <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-            <div className="w-32 h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl border-4 border-white overflow-hidden">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 relative z-10">
+            <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl border-4 border-white overflow-hidden shrink-0">
               {userProfile.image ? (
                 <img src={userProfile.image} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-16 h-16" />
+                <User className="w-12 h-12 md:w-16 md:h-16" />
               )}
             </div>
             
             <div className="flex-1 text-center md:text-left">
-              <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
-                <h1 className="text-3xl font-black text-gray-800">{userProfile.name}</h1>
-                <span className="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-wider">
+              <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 mb-2">
+                <h1 className="text-2xl md:text-3xl font-black text-white">{userProfile.name}</h1>
+                <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider">
                   {userProfile.rank}
                 </span>
               </div>
-              <div className="space-y-1 text-gray-500">
+              <div className="space-y-1 text-slate-400">
                 <p className="flex items-center justify-center md:justify-start gap-2">
-                  <Mail className="w-4 h-4" /> {userProfile.email}
+                  <Mail className="w-4 h-4 text-slate-500" /> {userProfile.email}
                 </p>
                 <p className="flex items-center justify-center md:justify-start gap-2">
-                  <GraduationCap className="w-4 h-4" /> Kelas: {userProfile.grade}
+                  <GraduationCap className="w-4 h-4 text-slate-500" /> Kelas: {userProfile.grade}
                 </p>
               </div>
             </div>
 
-            <Link href="/settings" className="p-3 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-colors text-gray-600">
-              <Settings className="w-6 h-6" />
+            <Link href="/settings" className="p-3.5 bg-slate-800 rounded-2xl hover:bg-slate-700 transition-colors text-slate-400 hover:text-white shadow-lg border border-white/5">
+              <Settings className="w-5 h-5 md:w-6 md:h-6" />
             </Link>
           </div>
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <motion.div whileHover={{ y: -5 }} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
-            <div className="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Star className="w-6 h-6 fill-current" />
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+          <motion.div whileHover={{ y: -5 }} className="bg-slate-900/40 backdrop-blur-md p-4 md:p-6 rounded-3xl shadow-xl border border-white/5 text-center">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-500/10 text-yellow-500 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4">
+              <Star className="w-5 h-5 md:w-6 md:h-6 fill-current" />
             </div>
-            <p className="text-3xl font-black text-gray-800">{userProfile.xp}</p>
-            <p className="text-sm font-medium text-gray-500">Total XP</p>
+            <p className="text-xl md:text-3xl font-black text-white">{userProfile.xp}</p>
+            <p className="text-[10px] md:text-sm font-medium text-slate-500 uppercase tracking-widest">Total XP</p>
           </motion.div>
 
-          <motion.div whileHover={{ y: -5 }} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
-            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <ShieldCheck className="w-6 h-6" />
+          <motion.div whileHover={{ y: -5 }} className="bg-slate-900/40 backdrop-blur-md p-4 md:p-6 rounded-3xl shadow-xl border border-white/5 text-center">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-indigo-500/10 text-indigo-400 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4">
+              <ShieldCheck className="w-5 h-5 md:w-6 md:h-6" />
             </div>
-            <p className="text-3xl font-black text-gray-800">Lvl {userProfile.level}</p>
-            <p className="text-sm font-medium text-gray-500">Level Saat Ini</p>
+            <p className="text-xl md:text-3xl font-black text-white">Lvl {userProfile.level}</p>
+            <p className="text-[10px] md:text-sm font-medium text-slate-500 uppercase tracking-widest">Level</p>
           </motion.div>
 
-          <motion.div whileHover={{ y: -5 }} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
-            <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Zap className="w-6 h-6 fill-current" />
+          <motion.div whileHover={{ y: -5 }} className="bg-slate-900/40 backdrop-blur-md p-4 md:p-6 rounded-3xl shadow-xl border border-white/5 text-center col-span-2 md:col-span-1">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-500/10 text-orange-500 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4">
+              <Zap className="w-5 h-5 md:w-6 md:h-6 fill-current" />
             </div>
-            <p className="text-3xl font-black text-gray-800">{userProfile.streak}</p>
-            <p className="text-sm font-medium text-gray-500">Hari Beruntun</p>
+            <p className="text-xl md:text-3xl font-black text-white">{userProfile.streak}</p>
+            <p className="text-[10px] md:text-sm font-medium text-slate-500 uppercase tracking-widest">Hari Beruntun</p>
           </motion.div>
         </div>
 
         {/* Achievements Section */}
         <section>
           <div className="flex items-center gap-2 mb-6">
-            <Award className="w-6 h-6 text-indigo-600" />
-            <h2 className="text-xl font-bold text-gray-800">Gelar & Pencapaian</h2>
+            <Award className="w-6 h-6 text-indigo-400" />
+            <h2 className="text-xl font-bold text-white uppercase tracking-tighter">Gelar & Pencapaian</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -200,20 +200,20 @@ export default function ProfilePage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-white p-4 rounded-2xl border-2 border-yellow-100 bg-yellow-50/10 flex items-center gap-4 hover:border-yellow-200 transition-colors cursor-default"
+                  className="bg-slate-900/40 backdrop-blur-md p-4 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 flex items-center gap-4 hover:border-yellow-500/40 transition-colors cursor-default"
                 >
-                  <div className="w-12 h-12 bg-yellow-400 text-white rounded-full flex items-center justify-center shadow-inner">
+                  <div className="w-12 h-12 bg-yellow-500 text-slate-950 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(234,179,8,0.3)]">
                     <Award className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800">{title}</h3>
-                    <p className="text-xs text-gray-500">Gelar kehormatan dari permainan.</p>
+                    <h3 className="font-bold text-white">{title}</h3>
+                    <p className="text-xs text-slate-500">Gelar kehormatan dari permainan.</p>
                   </div>
                 </motion.div>
               ))
             ) : (
-              <div className="col-span-full text-center py-12 bg-white rounded-3xl border border-dashed border-gray-200">
-                <p className="text-gray-500">Belum ada gelar yang diraih. Selesaikan tantangan game!</p>
+              <div className="col-span-full text-center py-12 bg-slate-900/20 rounded-3xl border border-dashed border-white/10">
+                <p className="text-slate-500">Belum ada gelar yang diraih. Selesaikan tantangan game!</p>
               </div>
             )}
           </div>
@@ -224,7 +224,7 @@ export default function ProfilePage() {
 
           <button 
             onClick={handleLogout}
-            className="w-full bg-red-50 text-red-600 font-bold py-4 rounded-2xl border-2 border-red-100 hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-red-500/10 text-red-500 font-bold py-4 rounded-2xl border border-red-500/20 hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
           >
             <LogOut className="w-5 h-5" /> Keluar Akun
           </button>
