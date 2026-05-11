@@ -17,6 +17,7 @@ export default function NobrolPage() {
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -33,9 +34,22 @@ export default function NobrolPage() {
           const current = event.resultIndex;
           const text = event.results[current][0].transcript;
           setTranscript(text);
+
+          // Reset timeout setiap kali ada suara masuk
+          if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
           if (event.results[current].isFinal) {
             setTranscript('');
             handleSend(text);
+          } else {
+            // Jika dalam 5 detik tidak ada suara tambahan, kirim pesan secara paksa
+            timeoutRef.current = setTimeout(() => {
+              if (text.trim()) {
+                setTranscript('');
+                handleSend(text);
+                recognitionRef.current?.stop(); // Berhenti sejenak untuk memproses
+              }
+            }, 5000);
           }
         };
 
@@ -48,6 +62,7 @@ export default function NobrolPage() {
 
     return () => {
       synthRef.current?.cancel();
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 
