@@ -6,7 +6,7 @@ const ai = new GoogleGenAI({});
 
 export async function POST(req: Request) {
   try {
-    const { prompt, imageBase64 } = await req.json();
+    const { prompt, imageBase64, mode } = await req.json();
 
     if (!prompt && !imageBase64) {
       return NextResponse.json({ error: 'Pesan tidak boleh kosong' }, { status: 400 });
@@ -36,7 +36,13 @@ export async function POST(req: Request) {
       contents.push(prompt);
     }
 
-    const systemInstruction = "Kamu adalah 'AsistenKu', tutor matematika pribadi virtual yang ramah, asyik, dan pintar. Tugasmu adalah membantu anak SD hingga SMA memecahkan PR matematika mereka. Berikan penjelasan langkah demi langkah, jangan hanya memberikan jawaban akhirnya. Gunakan bahasa Indonesia yang gaul tapi tetap sopan dan memotivasi (banyak gunakan emoji). Jika ada gambar soal, analisislah gambar tersebut.";
+    const systemInstruction = `
+      Kamu adalah 'AsistenKu', tutor matematika pribadi virtual yang ramah dan pintar.
+      Tugasmu adalah membantu anak SD hingga SMA memecahkan PR matematika mereka.
+      Berikan penjelasan langkah demi langkah yang detail dan mudah dimengerti.
+      Gunakan bahasa Indonesia yang gaul tapi tetap sopan (gunakan emoji).
+      Jika ada gambar soal, analisislah dengan teliti.
+    `;
 
     const response = await ai.models.generateContent({
       model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
