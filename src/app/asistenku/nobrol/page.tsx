@@ -13,6 +13,7 @@ export default function NobrolPage() {
   const [transcript, setTranscript] = useState('');
   const [lastResponse, setLastResponse] = useState('');
   const [isMounted, setIsMounted] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
@@ -77,6 +78,14 @@ export default function NobrolPage() {
   }, [isListening, isLoading, isSpeaking, isMounted]);
 
   const startListening = () => {
+    if (!hasInteracted) {
+      // iPhone/iOS butuh interaksi user pertama kali untuk unlock suara
+      setHasInteracted(true);
+      const silentUtterance = new SpeechSynthesisUtterance("");
+      silentUtterance.volume = 0;
+      window.speechSynthesis.speak(silentUtterance);
+    }
+
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
@@ -114,9 +123,12 @@ export default function NobrolPage() {
   };
 
   const speak = (text: string) => {
-    if (!voiceEnabled || !synthRef.current) return;
+    if (!synthRef.current) return;
     
+    // Pastikan suara dibatalkan dulu jika ada yang sedang berjalan
     synthRef.current.cancel();
+
+    // Workaround untuk iOS: Harus dibuat baru setiap kali
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'id-ID';
     utteranceRef.current = utterance;
