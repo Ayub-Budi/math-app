@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Brain, Gamepad2, ArrowRight, Star, Sparkles, Zap, Heart, Bot, Camera, ShieldAlert } from 'lucide-react';
+import { Brain, Gamepad2, ArrowRight, Star, Sparkles, Zap, Heart, Bot, Camera, ShieldAlert, Mic } from 'lucide-react';
 
 export default function LandingPage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -54,10 +54,10 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.8 }}
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] mb-8 md:mb-12"
+            className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-black tracking-tighter leading-[0.85] mb-8 md:mb-12"
           >
             THE FUTURE<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 animate-gradient-flow uppercase drop-shadow-[0_0_30px_rgba(129,140,248,0.3)]">OF MATH.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 animate-gradient-flow uppercase drop-shadow-[0_0_30px_rgba(129,140,248,0.5)]">OF MATH.</span>
           </motion.h1>
           
           <motion.p 
@@ -131,7 +131,11 @@ export default function LandingPage() {
       </section>
 
       {/* 3. Arcade Games & Sistem Nyawa */}
-      <section className="relative z-10 py-20 md:py-32 px-6 md:px-12 text-center">
+      <section className="relative z-10 py-20 md:py-32 px-6 md:px-12 text-center overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-1/4 w-64 h-64 bg-indigo-500/5 rounded-full blur-[100px]" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-[120px]" />
+
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -148,12 +152,12 @@ export default function LandingPage() {
  
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
             {[
-              { name: 'Math Invaders', desc: 'Uji kecepatan berhitungmu dengan menghancurkan meteor persamaan!', color: 'bg-gradient-to-br from-red-600 to-rose-700' },
-              { name: 'Pattern Breaker', desc: 'Decoding neural yang mengasah logika enkripsi pola angkamu.', color: 'bg-gradient-to-br from-cyan-600 to-indigo-700' },
-              { name: 'Equation Game', desc: 'Simulasi keseimbangan aljabar dalam lingkungan gravitasi nol.', color: 'bg-gradient-to-br from-emerald-600 to-teal-700' },
-              { name: 'Jembatan Pecahan', desc: 'Konstruksi jembatan fraksional dengan manajemen material terbatas.', color: 'bg-gradient-to-br from-orange-600 to-yellow-700' },
-              { name: 'Labirin Neural', desc: 'Navigasi robotik melalui koordinat matriks yang kompleks.', color: 'bg-gradient-to-br from-teal-600 to-cyan-700' },
-              { name: 'Urutan Cepat', desc: 'Sinkronisasi urutan numerik dalam tekanan waktu tinggi.', color: 'bg-gradient-to-br from-blue-600 to-indigo-700' }
+              { name: 'Math Invaders', desc: 'Uji kecepatan berhitungmu dengan menghancurkan meteor persamaan!', color: 'bg-gradient-to-br from-red-600/80 to-rose-700/80' },
+              { name: 'Pattern Breaker', desc: 'Decoding neural yang mengasah logika enkripsi pola angkamu.', color: 'bg-gradient-to-br from-cyan-600/80 to-indigo-700/80' },
+              { name: 'Equation Game', desc: 'Simulasi keseimbangan aljabar dalam lingkungan gravitasi nol.', color: 'bg-gradient-to-br from-emerald-600/80 to-teal-700/80' },
+              { name: 'Jembatan Pecahan', desc: 'Konstruksi jembatan fraksional dengan manajemen material terbatas.', color: 'bg-gradient-to-br from-orange-600/80 to-yellow-700/80' },
+              { name: 'Labirin Neural', desc: 'Navigasi robotik melalui koordinat matriks yang kompleks.', color: 'bg-gradient-to-br from-teal-600/80 to-cyan-700/80' },
+              { name: 'Urutan Cepat', desc: 'Sinkronisasi urutan numerik dalam tekanan waktu tinggi.', color: 'bg-gradient-to-br from-blue-600/80 to-indigo-700/80' }
             ].map((game, i) => (
               <motion.div
                 key={game.name}
@@ -186,7 +190,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4. AsistenKu (AI Tutor) */}
+      {/* 4. AsistenKu (AI Tutor) & NOBROL Integrated Section */}
       <section className="relative z-10 py-20 md:py-32 px-6 md:px-12 border-t border-white/5 bg-gradient-to-b from-indigo-950/20 to-[#020617] overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 md:gap-24">
           <motion.div 
@@ -195,28 +199,55 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="flex-1 text-center lg:text-left"
           >
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-8 md:mb-10 border border-indigo-500/30 mx-auto lg:mx-0 shadow-xl">
-              <Bot className="w-8 h-8 md:w-10 md:h-10 text-indigo-400" />
+            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8 md:mb-10">
+              <div className="w-16 h-16 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30 shadow-xl">
+                <Bot className="w-8 h-8 text-indigo-400" />
+              </div>
+              <div className="w-16 h-16 bg-purple-500/20 rounded-2xl flex items-center justify-center border border-purple-500/30 shadow-xl">
+                <Mic className="w-8 h-8 text-purple-400" />
+              </div>
             </div>
-            <h2 className="text-3xl md:text-6xl font-black mb-6 md:mb-8 leading-[0.95] uppercase tracking-tighter">PR MACET? <br/><span className="text-indigo-400">NEURAL AI</span> SIAP.</h2>
-            <p className="text-slate-400 text-base md:text-xl mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium">
-              Ditenagai oleh Google Gemini AI, <strong className="text-white">AsistenKu</strong> adalah tutor virtual langkah-demi-langkah tercanggih.
+            
+            <h2 className="text-3xl md:text-6xl font-black mb-6 md:mb-8 leading-[0.95] uppercase tracking-tighter">DUAL-MODE AI <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">MATH TUTOR.</span></h2>
+            
+            <p className="text-slate-200 text-base md:text-xl mb-6 leading-relaxed max-w-xl mx-auto lg:mx-0 font-bold">
+              Ditenagai oleh Google Gemini AI, <strong className="text-indigo-400">AsistenKu</strong> adalah tutor virtual langkah-demi-langkah tercanggih.
             </p>
-            <ul className="space-y-4 font-black text-slate-300 text-[10px] md:text-sm uppercase tracking-[0.3em]">
-              <li className="flex items-center gap-4 justify-center lg:justify-start"><Camera className="text-indigo-400 w-4 h-4 md:w-5 md:h-5" /> Scan soal via kamera.</li>
-              <li className="flex items-center gap-4 justify-center lg:justify-start"><Sparkles className="text-indigo-400 w-4 h-4 md:w-5 md:h-5" /> Analisis Neural Instan.</li>
-              <li className="flex items-center gap-4 justify-center lg:justify-start"><ShieldAlert className="text-indigo-400 w-4 h-4 md:w-5 md:h-5" /> Panduan Strategi Jawaban.</li>
-            </ul>
+            
+            <p className="text-slate-400 text-sm md:text-lg mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium italic">
+              "Ngobrol tanpa ngetik lewat mode <strong className="text-white">NOBROL</strong> untuk jawaban kilat, atau gunakan mode <strong className="text-white">CHAT</strong> untuk pembahasan mendalam."
+            </p>
+
           </motion.div>
  
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="flex-1 w-full max-w-xl"
+            className="flex-1 w-full max-w-xl relative"
           >
-            <div className="bg-slate-900 rounded-[2.5rem] p-4 md:p-6 border-4 md:border-8 border-slate-800 shadow-2xl relative transform lg:rotate-3 lg:hover:rotate-0 transition-all duration-700">
-              <div className="bg-slate-800/50 rounded-[2rem] p-6 md:p-10 h-[350px] md:h-[500px] flex flex-col justify-end gap-4 overflow-hidden">
+            {/* Dynamic Soundwave Overlay for Nobrol highlight */}
+            <div className="absolute -top-6 -right-6 z-20 bg-slate-900 border border-indigo-500/30 p-4 rounded-3xl shadow-2xl backdrop-blur-xl hidden md:block">
+              <div className="flex gap-1 items-center mb-2">
+                {[1,2,3,4,5,6].map(i => (
+                  <motion.div 
+                    key={i}
+                    animate={{ height: [10, 30, 10] }}
+                    transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
+                    className="w-1.5 bg-indigo-500 rounded-full"
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Nobrol Active</span>
+            </div>
+
+            <div className="bg-slate-900 rounded-[2.5rem] p-4 md:p-6 border-4 md:border-8 border-slate-800 shadow-2xl relative transform lg:rotate-2 hover:rotate-0 transition-all duration-700">
+              <div className="bg-slate-800/50 rounded-[2rem] p-6 md:p-10 h-[350px] md:h-[500px] flex flex-col justify-end gap-4 overflow-hidden relative">
+                <div className="absolute top-6 left-6 flex items-center gap-2">
+                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Neural Sync Status: 100%</span>
+                </div>
+
                 <div className="flex gap-3 items-end">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-600 shadow-lg" />
                   <div className="bg-blue-600 p-4 md:p-6 rounded-2xl rounded-bl-sm max-w-[85%] shadow-xl">
@@ -231,9 +262,9 @@ export default function LandingPage() {
                 </div>
                 
                 <div className="mt-6 bg-slate-950 rounded-full py-3 md:py-4 px-6 md:px-10 flex justify-between items-center border border-white/5 shadow-inner">
-                  <span className="text-slate-600 text-xs md:text-lg font-medium">Ketik pesan neuralmu...</span>
+                  <span className="text-slate-600 text-xs md:text-lg font-medium">Tanya soal di sini...</span>
                   <div className="flex gap-4 md:gap-6">
-                    <Camera className="w-5 h-5 md:w-8 md:h-8 text-slate-500 hover:text-white transition-colors cursor-pointer" />
+                    <Mic className="w-5 h-5 md:w-8 md:h-8 text-indigo-400 hover:scale-110 transition-all cursor-pointer" />
                     <ArrowRight className="w-5 h-5 md:w-8 md:h-8 text-indigo-400 hover:scale-110 transition-all cursor-pointer" />
                   </div>
                 </div>

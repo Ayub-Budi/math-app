@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     // Return data user (tanpa password)
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: 'Login berhasil', 
       user: {
         id: user.id,
@@ -36,6 +36,15 @@ export async function POST(req: Request) {
         grade: user.grade
       }
     });
+
+    // Set cookie untuk middleware
+    response.cookies.set('userId', user.id, {
+      path: '/',
+      httpOnly: false, // Biar bisa dibaca client kalau perlu, tapi middleware butuh ini
+      maxAge: 60 * 60 * 24 * 7, // 7 hari
+    });
+
+    return response;
   } catch (error: any) {
     console.error('LOGIN ERROR:', error);
     return NextResponse.json({ error: 'Terjadi kesalahan server' }, { status: 500 });

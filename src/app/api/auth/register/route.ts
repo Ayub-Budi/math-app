@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       message: 'User berhasil didaftarkan', 
       user: {
         id: user.id,
@@ -44,6 +44,15 @@ export async function POST(req: Request) {
         grade: user.grade
       }
     }, { status: 201 });
+
+    // Set cookie untuk middleware
+    response.cookies.set('userId', user.id, {
+      path: '/',
+      httpOnly: false,
+      maxAge: 60 * 60 * 24 * 7, // 7 hari
+    });
+
+    return response;
   } catch (error: any) {
     console.error('FULL REGISTRATION ERROR:', error);
     return NextResponse.json({ error: 'Kesalahan Database: ' + error.message }, { status: 500 });
