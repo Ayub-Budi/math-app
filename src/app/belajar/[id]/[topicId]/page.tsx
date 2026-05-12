@@ -404,7 +404,7 @@ export default function TopicLearningPage({ params }: { params: Promise<{ id: st
           <TopicAssistant 
             topicTitle={topicData.title}
             categoryTitle={category.title}
-            grade={typeof window !== 'undefined' ? (localStorage.getItem('userGrade') || 'SD') : 'SD'}
+            grade={isMounted ? (localStorage.getItem('userGrade') || 'SD') : 'SD'}
           />
         )}
       </div>

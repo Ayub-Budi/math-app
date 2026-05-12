@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,36 +8,36 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  password      String
-  grade         String    @default("SD") // SD, SMP, SMA
-  totalXp       Int       @default(0)
-  gamePoints    Int       @default(0)
-  level         Int       @default(1)
-  streak        Int       @default(0)
-  image         String?   @db.LongText // Untuk menyimpan Base64 atau URL foto profil
-  health        Int       @default(5)
-  lastHealthReset DateTime?
-  lastActive    DateTime?
-  progress      UserProgress[]
-  analytics     Analytics[]
-  createdAt     DateTime  @default(now())
-  titles            String?   @db.Text // Menyimpan array julukan dalam format JSON
-  gameProgress      GameProgress[]
-  learningProgress  LearningProgress[]
+  id               String             @id @default(cuid())
+  name             String?
+  email            String?            @unique(map: "User_email_key")
+  password         String
+  totalXp          Int                @default(0)
+  level            Int                @default(1)
+  streak           Int                @default(0)
+  lastActive       DateTime?
+  createdAt        DateTime           @default(now())
+  grade            String             @default("SD")
+  titles           String?            @db.Text
+  image            String?            @db.LongText
+  health           Int                @default(5)
+  lastHealthReset  DateTime?
+  gamePoints       Int                @default(0)
+  analytics        Analytics[]
+  gameProgress     GameProgress[]
+  learningProgress LearningProgress[]
+  progress         UserProgress[]
 
   @@map("users")
 }
 
 model MathTopic {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  category    String
-  difficulty  Int
-  questions   Question[]
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  category     String
+  difficulty   Int
+  questions    Question[]
   userProgress UserProgress[]
 
   @@map("mathtopic")
@@ -49,86 +46,90 @@ model MathTopic {
 model Question {
   id            String    @id @default(cuid())
   topicId       String
-  topic         MathTopic @relation(fields: [topicId], references: [id])
   questionText  String
   correctAnswer String
-  options       Json      // For multiple choice
+  options       String    @db.LongText
   xpReward      Int       @default(10)
+  topic         MathTopic @relation(fields: [topicId], references: [id], map: "Question_topicId_fkey")
 
+  @@index([topicId], map: "Question_topicId_fkey")
   @@map("question")
 }
 
 model UserProgress {
   id          String    @id @default(cuid())
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
   topicId     String
-  topic       MathTopic @relation(fields: [topicId], references: [id])
   isUnlocked  Boolean   @default(false)
   isCompleted Boolean   @default(false)
   highScore   Int       @default(0)
+  topic       MathTopic @relation(fields: [topicId], references: [id], map: "UserProgress_topicId_fkey")
+  user        User      @relation(fields: [userId], references: [id], map: "UserProgress_userId_fkey")
 
+  @@index([topicId], map: "UserProgress_topicId_fkey")
+  @@index([userId], map: "UserProgress_userId_fkey")
   @@map("userprogress")
 }
 
 model Analytics {
   id          String   @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
   date        DateTime @default(now())
   solvedCount Int      @default(0)
   accuracy    Float    @default(0)
+  user        User     @relation(fields: [userId], references: [id], map: "Analytics_userId_fkey")
 
+  @@index([userId], map: "Analytics_userId_fkey")
   @@map("analytics")
 }
 
 model Theory {
   id        String   @id @default(cuid())
   category  String
-  topicId   String?  // Optional for backward compatibility, but we will use it
   grade     String
-  content   Json
+  content   String   @db.LongText
   updatedAt DateTime @updatedAt
-  
-  @@unique([category, topicId, grade])
+  topicId   String?
+
+  @@unique([category, topicId, grade], map: "Theory_category_topicId_grade_key")
   @@map("theory")
 }
 
 model AIBankSoal {
   id        String   @id @default(cuid())
   category  String
-  topicId   String?
   grade     String
-  questions Json     // Menyimpan array soal dalam format JSON
+  questions String   @db.LongText
   updatedAt DateTime @updatedAt
-  
-  @@unique([category, topicId, grade])
+  topicId   String?
+
+  @@unique([category, topicId, grade], map: "AIBankSoal_category_topicId_grade_key")
   @@map("aibanksoal")
 }
 
 model GameProgress {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   gameId    String
   level     Int      @default(1)
   isMaxed   Boolean  @default(false)
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], map: "GameProgress_userId_fkey")
 
-  @@unique([userId, gameId])
+  @@unique([userId, gameId], map: "GameProgress_userId_gameId_key")
   @@map("gameprogress")
 }
 
 model LearningProgress {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  categoryId String   // e.g. 'aritmatika'
-  topicId    String   // e.g. 'penjumlahan-dasar'
-  score      Int      @default(0)
-  isCompleted Boolean @default(false)
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(cuid())
+  userId      String
+  categoryId  String
+  topicId     String
+  score       Int      @default(0)
+  isCompleted Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], map: "LearningProgress_userId_fkey")
 
-  @@unique([userId, categoryId, topicId])
+  @@unique([userId, categoryId, topicId], map: "LearningProgress_userId_categoryId_topicId_key")
   @@map("learningprogress")
 }

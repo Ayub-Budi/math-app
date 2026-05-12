@@ -11,6 +11,7 @@ interface TopicAssistantProps {
 }
 
 export default function TopicAssistant({ topicTitle, categoryTitle, grade }: TopicAssistantProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'model'; text: string }[]>([]);
@@ -20,7 +21,14 @@ export default function TopicAssistant({ topicTitle, categoryTitle, grade }: Top
   const [isSpeaking, setIsSpeaking] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
-  const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
+  const synthRef = useRef<SpeechSynthesis | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+    if (typeof window !== 'undefined') {
+      synthRef.current = window.speechSynthesis;
+    }
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -50,22 +58,62 @@ export default function TopicAssistant({ topicTitle, categoryTitle, grade }: Top
       .trim();
   };
 
+  const unlockAudio = () => {
+    if (synthRef.current) {
+      const utterance = new SpeechSynthesisUtterance("");
+      utterance.volume = 0;
+      synthRef.current.speak(utterance);
+    }
+  };
+
   const speak = (text: string) => {
-    if (!voiceEnabled || !synth) return;
+    if (!voiceEnabled || !synthRef.current) return;
     
     // Stop any current speech
-    synth.cancel();
+    synthRef.current.cancel();
 
     const cleanText = stripMarkdown(text);
     const utterance = new SpeechSynthesisUtterance(cleanText);
+    
+    // Cari suara Indonesia
+    let voices = synthRef.current.getVoices();
+    if (voices.length === 0) voices = window.speechSynthesis.getVoices();
+
+    const idVoice = voices.find(v => 
+      v.lang.replace('_', '-').includes('id-ID') || 
+      v.lang.includes('id') ||
+      v.name.toLowerCase().includes('indonesia')
+    );
+
+    if (idVoice) {
+      utterance.voice = idVoice;
+    }
+
     utterance.lang = 'id-ID';
     utterance.rate = 1.0;
     
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    utterance.onerror = (event: any) => {
+      if (event.error === 'interrupted') {
+        setIsSpeaking(false);
+        return;
+      }
+      console.error("Speech error:", event.error, event);
+      
+      // Fallback: coba lagi tanpa specific voice jika gagal
+      if (utterance.voice && (event.error === 'language-unavailable' || event.error === 'voice-unavailable')) {
+        utterance.voice = null;
+        synthRef.current?.speak(utterance);
+        return;
+      }
+      setIsSpeaking(false);
+    };
 
-    synth.speak(utterance);
+    // Delay kecil untuk stabilitas mobile
+    setTimeout(() => {
+      synthRef.current?.speak(utterance);
+    }, 50);
   };
 
   const handleSend = async () => {
@@ -104,6 +152,8 @@ export default function TopicAssistant({ topicTitle, categoryTitle, grade }: Top
       setLoading(false);
     }
   };
+
+  if (!isMounted) return null;
 
   return (
     <div className="fixed bottom-24 right-6 z-[100] flex flex-col items-end gap-4 pointer-events-none">
@@ -239,6 +289,7 @@ export default function TopicAssistant({ topicTitle, categoryTitle, grade }: Top
         onClick={() => {
           setIsOpen(true);
           setIsMinimized(false);
+          unlockAudio();
         }}
         className={`pointer-events-auto w-14 h-14 rounded-2xl shadow-[0_10px_30px_rgba(79,70,229,0.4)] flex items-center justify-center relative group
           ${isSpeaking ? 'bg-indigo-500' : 'bg-indigo-600'}
