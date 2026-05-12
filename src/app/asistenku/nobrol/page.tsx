@@ -13,7 +13,9 @@ export default function NobrolPage() {
   const [transcript, setTranscript] = useState('');
   const [lastResponse, setLastResponse] = useState('');
   const [isMounted, setIsMounted] = useState(false);
+  const [isSupported, setIsSupported] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
 
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
@@ -26,6 +28,7 @@ export default function NobrolPage() {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
+        setIsSupported(true);
         recognitionRef.current = new SpeechRecognition();
         recognitionRef.current.continuous = false;
         recognitionRef.current.interimResults = true;
@@ -57,8 +60,17 @@ export default function NobrolPage() {
         recognitionRef.current.onend = () => {
           setIsListening(false);
         };
+      } else {
+        setIsSupported(false);
       }
       synthRef.current = window.speechSynthesis;
+      // Pre-load voices
+      if (synthRef.current.onvoiceschanged !== undefined) {
+        synthRef.current.onvoiceschanged = () => {
+          // Hanya untuk trigger loading voices
+          synthRef.current?.getVoices();
+        };
+      }
     }
 
     return () => {
@@ -69,24 +81,16 @@ export default function NobrolPage() {
 
   // Auto-restart listening
   useEffect(() => {
-    if (isMounted && !isListening && !isLoading && !isSpeaking) {
+    if (isMounted && isStarted && !isListening && !isLoading && !isSpeaking) {
       const timer = setTimeout(() => {
         startListening();
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [isListening, isLoading, isSpeaking, isMounted]);
+  }, [isListening, isLoading, isSpeaking, isMounted, isStarted]);
 
   const startListening = () => {
-    if (!hasInteracted) {
-      // iPhone/iOS butuh interaksi user pertama kali untuk unlock suara
-      setHasInteracted(true);
-      const silentUtterance = new SpeechSynthesisUtterance("");
-      silentUtterance.volume = 0;
-      window.speechSynthesis.speak(silentUtterance);
-    }
-
-    if (recognitionRef.current) {
+    if (recognitionRef.current && isStarted) {
       try {
         recognitionRef.current.stop();
         setTimeout(() => {
@@ -96,6 +100,18 @@ export default function NobrolPage() {
       } catch (e) {
         console.error("Speech start error:", e);
       }
+    }
+  };
+
+  const handleStartSession = () => {
+    setIsStarted(true);
+    setHasInteracted(true);
+    
+    // Unlock Audio for iOS
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      const utterance = new SpeechSynthesisUtterance("");
+      utterance.volume = 0;
+      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -125,12 +141,35 @@ export default function NobrolPage() {
   const speak = (text: string) => {
     if (!synthRef.current) return;
     
-    // Pastikan suara dibatalkan dulu jika ada yang sedang berjalan
     synthRef.current.cancel();
 
-    // Workaround untuk iOS: Harus dibuat baru setiap kali
     const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Cari suara Indonesia
+    let voices = synthRef.current.getVoices();
+    
+    // Jika list masih kosong, coba panggil lagi (beberapa browser butuh ini)
+    if (voices.length === 0) {
+      voices = window.speechSynthesis.getVoices();
+    }
+
+    const idVoice = voices.find(v => 
+      v.lang.replace('_', '-').includes('id-ID') || 
+      v.lang.includes('id') ||
+      v.name.toLowerCase().includes('indonesia')
+    );
+
+    if (idVoice) {
+      console.log("Using voice:", idVoice.name);
+      utterance.voice = idVoice;
+    } else {
+      console.warn("No Indonesian voice found among", voices.length, "voices. Falling back to default lang.");
+    }
+    
     utterance.lang = 'id-ID';
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
     utteranceRef.current = utterance;
 
     utterance.onstart = () => {
@@ -143,12 +182,35 @@ export default function NobrolPage() {
       utteranceRef.current = null;
     };
 
-    utterance.onerror = () => {
+    utterance.onerror = (event: any) => {
+      // 'interrupted' biasanya terjadi karena kita memanggil cancel() untuk mengganti suara baru
+      // Ini normal dan sebaiknya tidak dianggap error yang mengganggu user
+      if (event.error === 'interrupted') {
+        setIsSpeaking(false);
+        return;
+      }
+
+      if (event.error) {
+        console.error("Speech error detail:", event.error, event);
+      }
+      
+      // Jika gagal dengan suara spesifik, coba lagi sekali tanpa setting voice
+      if (utterance.voice && (event.error === 'language-unavailable' || event.error === 'voice-unavailable')) {
+        utterance.voice = null;
+        synthRef.current?.speak(utterance);
+        return;
+      }
+
       setIsSpeaking(false);
       utteranceRef.current = null;
     };
 
-    synthRef.current.speak(utterance);
+    // Tambahkan delay kecil setelah cancel() agar browser mobile stabil
+    setTimeout(() => {
+      if (synthRef.current) {
+        synthRef.current.speak(utterance);
+      }
+    }, 50);
   };
 
   if (!isMounted) return null;
@@ -157,6 +219,12 @@ export default function NobrolPage() {
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 overflow-hidden relative">
       {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+      {!isSupported && (
+        <div className="absolute top-0 left-0 right-0 z-[100] bg-red-500 text-white p-3 flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest animate-in slide-in-from-top duration-500">
+           <X className="w-4 h-4" /> Browser ini tidak mendukung fitur suara. Gunakan Chrome atau Safari terbaru.
+        </div>
+      )}
 
       <Link 
         href="/asistenku" 
@@ -241,6 +309,29 @@ export default function NobrolPage() {
           Ngobrol Tanpa Ngetik • Tektokan Kilat
         </p>
       </div>
+
+      {/* Start Overlay for iOS & Experience */}
+      {!isStarted && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col items-center text-center max-w-xs"
+          >
+            <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20">
+              <Mic className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-xl font-black text-white uppercase tracking-tight mb-2">Siap Ngobrol?</h2>
+            <p className="text-slate-400 text-sm font-medium mb-8">Ketuk tombol di bawah untuk mulai asisten suara.</p>
+            <button
+              onClick={handleStartSession}
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-indigo-600/20"
+            >
+              Mulai Sekarang
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
