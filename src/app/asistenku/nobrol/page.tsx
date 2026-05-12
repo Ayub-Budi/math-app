@@ -153,17 +153,17 @@ export default function NobrolPage() {
       voices = window.speechSynthesis.getVoices();
     }
 
-    const idVoice = voices.find(v => 
-      v.lang.replace('_', '-').includes('id-ID') || 
-      v.lang.includes('id') ||
-      v.name.toLowerCase().includes('indonesia')
-    );
+    const idVoice = voices.find(v => {
+      const lang = v.lang.toLowerCase().replace('_', '-');
+      const name = v.name.toLowerCase();
+      return lang.includes('id-id') || lang === 'id' || name.includes('indonesia') || name.includes('bahasa');
+    });
 
     if (idVoice) {
-      console.log("Using voice:", idVoice.name);
+      console.log("Using Indonesian voice:", idVoice.name, idVoice.lang);
       utterance.voice = idVoice;
     } else {
-      console.warn("No Indonesian voice found among", voices.length, "voices. Falling back to default lang.");
+      console.warn("No Indonesian voice found among", voices.length, "available voices. Available:", voices.map(v => v.lang).join(', '));
     }
     
     utterance.lang = 'id-ID';

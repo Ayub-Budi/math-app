@@ -79,14 +79,17 @@ export default function TopicAssistant({ topicTitle, categoryTitle, grade }: Top
     let voices = synthRef.current.getVoices();
     if (voices.length === 0) voices = window.speechSynthesis.getVoices();
 
-    const idVoice = voices.find(v => 
-      v.lang.replace('_', '-').includes('id-ID') || 
-      v.lang.includes('id') ||
-      v.name.toLowerCase().includes('indonesia')
-    );
+    const idVoice = voices.find(v => {
+      const lang = v.lang.toLowerCase().replace('_', '-');
+      const name = v.name.toLowerCase();
+      return lang.includes('id-id') || lang === 'id' || name.includes('indonesia') || name.includes('bahasa');
+    });
 
     if (idVoice) {
+      console.log("Using Indonesian voice:", idVoice.name, idVoice.lang);
       utterance.voice = idVoice;
+    } else {
+      console.warn("No Indonesian voice found among", voices.length, "available voices.");
     }
 
     utterance.lang = 'id-ID';
